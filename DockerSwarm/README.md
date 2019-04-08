@@ -11,7 +11,7 @@ There are 2 Traefik instances to handle both fronttier and backtier services
 **Note:**
 - `"--constraints=tag==traefik-fronttier"` controls only the containers with `traefik-tags=traefik-fronttier` tags will be controlled by the `fronttier` traefik controller
 - `"--constraints=tag==traefik-backtier"` controls only the containers with `traefik-tags=traefik-backtier` tags will be controlled by the `backtier` traefik controller
-- `restart_policy` set to `condition: any` will all these 2 `traefik` container/service to auto restart after node reboot or docker daemon reboot.
+- `restart_policy` set to `condition: any` will allow these 2 `traefik` container/service to auto restart after node reboot or docker daemon reboot.
 - `constraints: [node.role == manager]` will force these 2 `traefik` services to run only on Swarm Manager role nodes
 
 
@@ -89,14 +89,14 @@ services:
 
 The following simulate a simple fronttier webapp
 **Note:**
-- `extra_hosts` are the list of the hosts docker will put into the container's /etc/hosts file<br>
-the sample lists external IP for the `redis`, `mongodb` and `consul` services.<br>
-using `extra_hosts` will allow apps in docker container to communicate to external services
+- `extra_hosts` are the list of the hosts <br>Docker will put them into the container's /etc/hosts file<br>
+This sample lists external IP for the `redis`, `mongodb` and `consul` services.<br>
+`extra_hosts` will allow apps in docker container to communicate to external services
 
 - `constraints: - node.role == worker` set the service contains to run only in nodes whose role is a `worker`
 
 - `- "traefik.basic.port=5000"`  this is the port for our `webapp:1.1` service. This webapp listens and exposes on port 5000
-- `- "traefik.frontend.rule=PathPrefixStrip:/webapp"` this is Traefik setting for URL mapping. Any request to /webapp will be forwarded to port 5000 (the webapp service)
+- `- "traefik.frontend.rule=PathPrefixStrip:/webapp"` this is Traefik setting for URL mapping. Any request to /webapp will be forwarded to port 5000 (the webapp service itself)
 - `"traefik.backend=webapp"` set the name of the service Traefik will forward the request to, which is the service itself
 - `- "traefik.docker.network=okto_frontend"` this is the Docker `overlay` network which Traefik and all services use to communicate
 - `- "traefik.tags=traefik-fronttier"` is to set the `webapp` service to associate with the `traefik-fronttier` Traefik instance
