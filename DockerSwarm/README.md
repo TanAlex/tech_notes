@@ -2,7 +2,7 @@
 
 ## Architect diagram
 
-![architect diagram](imgs/swarm._stack.png)
+![architect diagram](imgs/swarm_stack.png)
 
 ## Traefik service act as load-balancer
 
