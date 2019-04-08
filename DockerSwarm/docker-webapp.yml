@@ -1,0 +1,54 @@
+version: "3.3"
+services:
+   webapp:
+      image: devmr1oktodock1:5000/webapp:1.1
+      extra_hosts:
+         - "redis:172.25.83.76"
+         - "mongodb:172.25.83.64"
+         - "consul:172.25.83.61"
+      networks:
+         - frontend
+      deploy:
+        placement:
+          constraints:
+            - node.role == worker
+        restart_policy:
+          condition: on-failure
+        labels:
+          - "traefik.enable=true"
+          - "traefik.basic.port=5000"
+          - "traefik.basic.protocol=http"
+          - "traefik.backend=webapp"
+          - "traefik.frontend.rule=PathPrefixStrip:/webapp"
+          - "traefik.docker.network=okto_frontend"
+          - "traefik.backend.loadbalancer.swarm=true"
+          - "traefik.tags=traefik-fronttier"
+
+   whoami:
+     image: devmr1oktodock1:5000/whoami:latest
+     extra_hosts:
+        - "redis:172.25.83.76"
+        - "mongodb:172.25.83.64"
+        - "consul:172.25.83.61"
+     networks:
+        - frontend
+     deploy:
+       placement:
+         constraints:
+           - node.role == worker
+       restart_policy:
+         condition: on-failure
+       labels:
+         - "traefik.enable=true"
+         - "traefik.basic.port=80"
+         - "traefik.basic.protocol=http"
+         - "traefik.backend=whoami"
+         - "traefik.frontend.rule=PathPrefixStrip:/whoami"
+         - "traefik.docker.network=okto_frontend"
+         - "traefik.backend.loadbalancer.swarm=true"
+         - "traefik.tags=traefik-backtier"
+
+networks:
+   frontend:
+       driver: overlay
+       attachable: true
