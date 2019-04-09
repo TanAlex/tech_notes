@@ -4,6 +4,46 @@
 
 ![architect diagram](imgs/swarm_stack.png)
 
+
+## High level explanation
+
+
+Lets say you have 8 VM Nodes showing as the Gray Box in the diagram above
+You plan to build a few `fronttier` web applications
+* One web UI app written in TS or JS listening on port 5001
+* One Web REST API app writtern in DotNet Core listening on port 5002
+* One web GraphQL API app writtern in Javascript
+
+You want to use the following URL to access these services 
+* Web UI app:  http://yourdomain.com/www
+* REST API app: http://yourdomain.com/api
+* GraphQL API app: http://yourdomain.com/graphql
+
+Traefik instance here can help, it works just like a reverse proxy.
+So based on a `frontend rule` like `"traefik.frontend.rule=PathPrefixStrip:/www`, it will allow the request to be redirected/forwared to the `backend` service for the Web UI app
+
+This will be the same for `backtier` applications.
+You might want to run a few `backtier` app too
+* One backend OSS app listening on port 60001
+* One backend Billing app listening on port 60002
+* One backend media app listing on port 60003
+and you want to access them from the `fronttier` containers using URL like these:
+* Backend OSS app: http://backtier/oss/v1
+* Backend Billing app:  http://backtier/billing/v1
+* Backend Media app: http://backtier/media/v1
+* Backend Media app version 2: http://backtier/media/v2
+
+Now we need a 2nd Traefik instance to handle these ones
+Both of these 2 Traefik instances will listen on port 80 and 443, but only the `fronttier` Traefik instance docker container exposed/mapped to Node port 80 and 443, the `backtier` mapped to different ports or simply no need to map to Node Ports
+
+All the frontend containers can use http://backtier to access the `backtier` Traefik service anyway.
+
+Because we allow any container to deploy on any hosts to provide maximum flexibility, we will use a trick to differenciate which contains should be managed by which Traefik instance
+
+The way to achieve that is to use a tag on the Traefik service like `"--constraints=tag==traefik-fronttier"`
+All the containers with a tag like `traefik-tags=traefik-fronttier` will be associated only to the "fronttier" Traefik instance
+The same type of config works for backtier apps as well.
+
 ## Traefik service act as load-balancer
 
 There are 2 Traefik instances to handle both fronttier and backtier services
