@@ -17,6 +17,9 @@ mkdocs serve
 mkdocs gh-deploy
 
 ```
+It will be published on
+https://tanalex.github.io/tech_notes/
+
 
 ## DockerSwarm 
 [Docker Swarm](docs/DockerSwarm/README.md)
