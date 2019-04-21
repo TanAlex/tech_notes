@@ -1,17 +1,25 @@
-# Welcome to MkDocs
+# Tech Notes
 
-For full documentation visit [mkdocs.org](https://mkdocs.org).
+<!-- TOC -->
 
-## Commands
+- [Tech Notes](#tech-notes)
+    - [Run mkdocs to generate sites htmls](#run-mkdocs-to-generate-sites-htmls)
+    - [DockerSwarm](#dockerswarm)
+    - [Kubernetes](#kubernetes)
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs help` - Print this help message.
+<!-- /TOC -->
+## Run mkdocs to generate sites htmls
+```
+mkdocs build
+mkdocs serve
 
-## Project layout
+# publish to git pages
+mkdocs gh-deploy
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+```
+
+## DockerSwarm 
+[Docker Swarm](docs/DockerSwarm/README.md)
+
+## Kubernetes
+[Docker Swarm](docs/DockerSwarm/README.md)

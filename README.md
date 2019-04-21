@@ -12,6 +12,10 @@
 ```
 mkdocs build
 mkdocs serve
+
+# publish to git pages
+mkdocs gh-deploy
+
 ```
 
 ## DockerSwarm 
