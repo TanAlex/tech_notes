@@ -21,11 +21,13 @@
 
 Lets say you have 8 VM Nodes showing as the Gray Box in the diagram above<br>
 You plan to build a few `fronttier` web applications
+
 * One web UI app written in TS or JS listening on port 5001
 * One Web REST API app writtern in DotNet Core listening on port 5002
 * One web GraphQL API app writtern in Javascript listening on port 5003
 
-You want to use the following URL to access these services 
+You want to use the following URL to access these services
+
 * Web UI app:  http://yourdomain.com/www
 * REST API app: http://yourdomain.com/api
 * GraphQL API app: http://yourdomain.com/graphql
@@ -35,11 +37,13 @@ So based on a `frontend rule` like `"traefik.frontend.rule=PathPrefixStrip:/www`
 
 This will be the same for `backtier` applications.<br>
 You might want to run a few `backtier` app too
+
 * One backend OSS app listening on port 60001
 * One backend Billing app listening on port 60002
 * One backend media app listing on port 60003
 
 You want to access them from the `fronttier` containers using URL like these:
+
 * Backend OSS app: http://backtier/oss/v1
 * Backend Billing app:  http://backtier/billing/v1
 * Backend Media app: http://backtier/media/v1
@@ -61,6 +65,7 @@ The same type of config works for backtier apps as well.
 There are 2 Traefik instances to handle both fronttier and backtier services
 
 **Note:**
+
 - `"--constraints=tag==traefik-fronttier"` controls only the containers with `traefik-tags=traefik-fronttier` tags will be controlled by the `fronttier` traefik controller
 - `"--constraints=tag==traefik-backtier"` controls only the containers with `traefik-tags=traefik-backtier` tags will be controlled by the `backtier` traefik controller
 - `restart_policy` set to `condition: any` will allow these 2 `traefik` container/service to auto restart after node reboot or docker daemon reboot.
@@ -140,7 +145,9 @@ services:
 ## Frontier service example
 
 The following simulate a simple fronttier webapp
+
 **Note:**
+
 - `extra_hosts` are the list of the hosts <br>Docker will put them into the container's /etc/hosts file<br>
 This sample lists external IP for the `redis`, `mongodb` and `consul` services.<br>
 `extra_hosts` will allow apps in docker container to communicate to external services
