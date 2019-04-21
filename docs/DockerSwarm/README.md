@@ -1,4 +1,15 @@
 # Docker Swarm Stack with Traefik solution
+<!-- TOC -->
+
+- [Docker Swarm Stack with Traefik solution](#docker-swarm-stack-with-traefik-solution)
+    - [Architect diagram](#architect-diagram)
+    - [High level explanation](#high-level-explanation)
+    - [Traefik service act as load-balancer](#traefik-service-act-as-load-balancer)
+    - [Frontier service example](#frontier-service-example)
+    - [Backtier service example](#backtier-service-example)
+    - [Steps to deploy and test](#steps-to-deploy-and-test)
+
+<!-- /TOC -->
 
 ## Architect diagram
 
@@ -39,7 +50,7 @@ Both of these 2 Traefik instances will listen on port 80 and 443, but only the `
 
 All the frontend containers can use http://backtier to access the `backtier` Traefik service anyway.
 
-Because we allow any container to deploy on any hosts to provide maximum flexibility, we will use a trick to differenciate which contains should be managed by which Traefik instance
+Because we allow any container to deploy on any hosts to provide maximum flexibility, we will use a trick to differentiate which contains should be managed by which Traefik instance
 
 The way to achieve that is to use a tag on the Traefik service like `"--constraints=tag==traefik-fronttier"`<br>
 All the containers with a tag like `traefik-tags=traefik-fronttier` will be associated only to the "fronttier" Traefik instance<br>

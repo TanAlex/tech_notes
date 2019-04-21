@@ -1,0 +1,6 @@
+site_name: Tech Notes
+
+nav:
+    - DockerSwarm: DockerSwarm/README.md
+    - Kubernetes: Kubernetes/KubernetesNotes.md
+theme: readthedocs
