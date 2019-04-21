@@ -8,7 +8,7 @@
   <meta name="description" content="None">
   
   <link rel="shortcut icon" href="img/favicon.ico">
-  <title>Welcome to MkDocs - Tech Notes</title>
+  <title>Tech Notes - Tech Notes</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Welcome to MkDocs";
+    var mkdocs_page_name = "Tech Notes";
     var mkdocs_page_input_path = "index.md";
     var mkdocs_page_url = null;
   </script>
@@ -80,7 +80,7 @@
     
       
     
-    <li>Welcome to MkDocs</li>
+    <li>Tech Notes</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -90,21 +90,34 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="welcome-to-mkdocs">Welcome to MkDocs</h1>
-<p>For full documentation visit <a href="https://mkdocs.org">mkdocs.org</a>.</p>
-<h2 id="commands">Commands</h2>
+                <h1 id="tech-notes">Tech Notes</h1>
+<!-- TOC -->
+
 <ul>
-<li><code>mkdocs new [dir-name]</code> - Create a new project.</li>
-<li><code>mkdocs serve</code> - Start the live-reloading docs server.</li>
-<li><code>mkdocs build</code> - Build the documentation site.</li>
-<li><code>mkdocs help</code> - Print this help message.</li>
+<li><a href="#tech-notes">Tech Notes</a><ul>
+<li><a href="#run-mkdocs-to-generate-sites-htmls">Run mkdocs to generate sites htmls</a></li>
+<li><a href="#dockerswarm">DockerSwarm</a></li>
+<li><a href="#kubernetes">Kubernetes</a></li>
 </ul>
-<h2 id="project-layout">Project layout</h2>
-<pre><code>mkdocs.yml    # The configuration file.
-docs/
-    index.md  # The documentation homepage.
-    ...       # Other markdown pages, images and other files.
+</li>
+</ul>
+<!-- /TOC -->
+
+<h2 id="run-mkdocs-to-generate-sites-htmls">Run mkdocs to generate sites htmls</h2>
+<pre><code>mkdocs build
+mkdocs serve
+
+# publish to git pages
+mkdocs gh-deploy
+
 </code></pre>
+
+<p>It will be published on
+https://tanalex.github.io/tech_notes/</p>
+<h2 id="dockerswarm">DockerSwarm</h2>
+<p><a href="docs/DockerSwarm/README.md">Docker Swarm</a></p>
+<h2 id="kubernetes">Kubernetes</h2>
+<p><a href="docs/DockerSwarm/README.md">Docker Swarm</a></p>
               
             </div>
           </div>
@@ -144,5 +157,5 @@ docs/
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-04-21 05:56:40
+Build Date UTC : 2019-04-21 06:33:12
 -->
