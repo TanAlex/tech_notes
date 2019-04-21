@@ -132,26 +132,34 @@
 <p><img alt="architect diagram" src="imgs/swarm_stack.png" /></p>
 <h2 id="high-level-explanation">High level explanation</h2>
 <p>Lets say you have 8 VM Nodes showing as the Gray Box in the diagram above<br>
-You plan to build a few <code>fronttier</code> web applications
-* One web UI app written in TS or JS listening on port 5001
-* One Web REST API app writtern in DotNet Core listening on port 5002
-* One web GraphQL API app writtern in Javascript listening on port 5003</p>
-<p>You want to use the following URL to access these services 
-* Web UI app:  http://yourdomain.com/www
-* REST API app: http://yourdomain.com/api
-* GraphQL API app: http://yourdomain.com/graphql</p>
+You plan to build a few <code>fronttier</code> web applications</p>
+<ul>
+<li>One web UI app written in TS or JS listening on port 5001</li>
+<li>One Web REST API app writtern in DotNet Core listening on port 5002</li>
+<li>One web GraphQL API app writtern in Javascript listening on port 5003</li>
+</ul>
+<p>You want to use the following URL to access these services</p>
+<ul>
+<li>Web UI app:  http://yourdomain.com/www</li>
+<li>REST API app: http://yourdomain.com/api</li>
+<li>GraphQL API app: http://yourdomain.com/graphql</li>
+</ul>
 <p>Traefik instance here can help, it works just like a reverse proxy.
 So based on a <code>frontend rule</code> like <code>"traefik.frontend.rule=PathPrefixStrip:/www</code>, it will allow the request to be redirected/forwared to the <code>backend</code> service for the Web UI app</p>
 <p>This will be the same for <code>backtier</code> applications.<br>
-You might want to run a few <code>backtier</code> app too
-* One backend OSS app listening on port 60001
-* One backend Billing app listening on port 60002
-* One backend media app listing on port 60003</p>
-<p>You want to access them from the <code>fronttier</code> containers using URL like these:
-* Backend OSS app: http://backtier/oss/v1
-* Backend Billing app:  http://backtier/billing/v1
-* Backend Media app: http://backtier/media/v1
-* Backend Media app version 2: http://backtier/media/v2</p>
+You might want to run a few <code>backtier</code> app too</p>
+<ul>
+<li>One backend OSS app listening on port 60001</li>
+<li>One backend Billing app listening on port 60002</li>
+<li>One backend media app listing on port 60003</li>
+</ul>
+<p>You want to access them from the <code>fronttier</code> containers using URL like these:</p>
+<ul>
+<li>Backend OSS app: http://backtier/oss/v1</li>
+<li>Backend Billing app:  http://backtier/billing/v1</li>
+<li>Backend Media app: http://backtier/media/v1</li>
+<li>Backend Media app version 2: http://backtier/media/v2</li>
+</ul>
 <p>Now we need a 2nd Traefik instance to handle these ones<br>
 Both of these 2 Traefik instances will listen on port 80 and 443, but only the <code>fronttier</code> Traefik instance docker container exposed/mapped to Node port 80 and 443, the <code>backtier</code> mapped to different ports or simply no need to map to Node Ports</p>
 <p>All the frontend containers can use http://backtier to access the <code>backtier</code> Traefik service anyway.</p>
@@ -161,11 +169,13 @@ All the containers with a tag like <code>traefik-tags=traefik-fronttier</code> w
 The same type of config works for backtier apps as well.</p>
 <h2 id="traefik-service-act-as-load-balancer">Traefik service act as load-balancer</h2>
 <p>There are 2 Traefik instances to handle both fronttier and backtier services</p>
-<p><strong>Note:</strong>
-- <code>"--constraints=tag==traefik-fronttier"</code> controls only the containers with <code>traefik-tags=traefik-fronttier</code> tags will be controlled by the <code>fronttier</code> traefik controller
-- <code>"--constraints=tag==traefik-backtier"</code> controls only the containers with <code>traefik-tags=traefik-backtier</code> tags will be controlled by the <code>backtier</code> traefik controller
-- <code>restart_policy</code> set to <code>condition: any</code> will allow these 2 <code>traefik</code> container/service to auto restart after node reboot or docker daemon reboot.
-- <code>constraints: [node.role == manager]</code> will force these 2 <code>traefik</code> services to run only on Swarm Manager role nodes</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li><code>"--constraints=tag==traefik-fronttier"</code> controls only the containers with <code>traefik-tags=traefik-fronttier</code> tags will be controlled by the <code>fronttier</code> traefik controller</li>
+<li><code>"--constraints=tag==traefik-backtier"</code> controls only the containers with <code>traefik-tags=traefik-backtier</code> tags will be controlled by the <code>backtier</code> traefik controller</li>
+<li><code>restart_policy</code> set to <code>condition: any</code> will allow these 2 <code>traefik</code> container/service to auto restart after node reboot or docker daemon reboot.</li>
+<li><code>constraints: [node.role == manager]</code> will force these 2 <code>traefik</code> services to run only on Swarm Manager role nodes</li>
+</ul>
 <pre><code class="yml">version: '3.3'
 
 networks:
@@ -236,12 +246,14 @@ services:
 </code></pre>
 
 <h2 id="frontier-service-example">Frontier service example</h2>
-<p>The following simulate a simple fronttier webapp
-<strong>Note:</strong>
-- <code>extra_hosts</code> are the list of the hosts <br>Docker will put them into the container's /etc/hosts file<br>
+<p>The following simulate a simple fronttier webapp</p>
+<p><strong>Note:</strong></p>
+<ul>
+<li>
+<p><code>extra_hosts</code> are the list of the hosts <br>Docker will put them into the container's /etc/hosts file<br>
 This sample lists external IP for the <code>redis</code>, <code>mongodb</code> and <code>consul</code> services.<br>
 <code>extra_hosts</code> will allow apps in docker container to communicate to external services</p>
-<ul>
+</li>
 <li>
 <p><code>constraints: - node.role == worker</code> set the service contains to run only in nodes whose role is a <code>worker</code></p>
 </li>
@@ -403,5 +415,5 @@ ww7315qshpzd        okto_whoami.4       devmr1oktodock1:5000/whoami:latest   dev
 
 <!--
 MkDocs version : 1.0.4
-Build Date UTC : 2019-04-21 06:33:12
+Build Date UTC : 2019-04-21 06:43:27
 -->
