@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>DockerSwarm - Tech Notes</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "DockerSwarm";
+    var mkdocs_page_input_path = "DockerSwarm\\README.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="./" class="icon icon-home"> Tech Notes</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">DockerSwarm</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#docker-swarm-stack-with-traefik-solution">Docker Swarm Stack with Traefik solution</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#architect-diagram">Architect diagram</a></li>
+        
+            <li><a class="toctree-l3" href="#high-level-explanation">High level explanation</a></li>
+        
+            <li><a class="toctree-l3" href="#traefik-service-act-as-load-balancer">Traefik service act as load-balancer</a></li>
+        
+            <li><a class="toctree-l3" href="#frontier-service-example">Frontier service example</a></li>
+        
+            <li><a class="toctree-l3" href="#backtier-service-example">Backtier service example</a></li>
+        
+            <li><a class="toctree-l3" href="#steps-to-deploy-and-test">Steps to deploy and test</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../Kubernetes/KubernetesNotes/">Kubernetes</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="./">Tech Notes</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="./">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>DockerSwarm</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="docker-swarm-stack-with-traefik-solution">Docker Swarm Stack with Traefik solution</h1>
+<!-- TOC -->
+
+<ul>
+<li><a href="#docker-swarm-stack-with-traefik-solution">Docker Swarm Stack with Traefik solution</a><ul>
+<li><a href="#architect-diagram">Architect diagram</a></li>
+<li><a href="#high-level-explanation">High level explanation</a></li>
+<li><a href="#traefik-service-act-as-load-balancer">Traefik service act as load-balancer</a></li>
+<li><a href="#frontier-service-example">Frontier service example</a></li>
+<li><a href="#backtier-service-example">Backtier service example</a></li>
+<li><a href="#steps-to-deploy-and-test">Steps to deploy and test</a></li>
+</ul>
+</li>
+</ul>
+<!-- /TOC -->
+
+<h2 id="architect-diagram">Architect diagram</h2>
+<p><img alt="architect diagram" src="imgs/swarm_stack.png" /></p>
+<h2 id="high-level-explanation">High level explanation</h2>
+<p>Lets say you have 8 VM Nodes showing as the Gray Box in the diagram above<br>
+You plan to build a few <code>fronttier</code> web applications
+* One web UI app written in TS or JS listening on port 5001
+* One Web REST API app writtern in DotNet Core listening on port 5002
+* One web GraphQL API app writtern in Javascript listening on port 5003</p>
+<p>You want to use the following URL to access these services 
+* Web UI app:  http://yourdomain.com/www
+* REST API app: http://yourdomain.com/api
+* GraphQL API app: http://yourdomain.com/graphql</p>
+<p>Traefik instance here can help, it works just like a reverse proxy.
+So based on a <code>frontend rule</code> like <code>"traefik.frontend.rule=PathPrefixStrip:/www</code>, it will allow the request to be redirected/forwared to the <code>backend</code> service for the Web UI app</p>
+<p>This will be the same for <code>backtier</code> applications.<br>
+You might want to run a few <code>backtier</code> app too
+* One backend OSS app listening on port 60001
+* One backend Billing app listening on port 60002
+* One backend media app listing on port 60003</p>
+<p>You want to access them from the <code>fronttier</code> containers using URL like these:
+* Backend OSS app: http://backtier/oss/v1
+* Backend Billing app:  http://backtier/billing/v1
+* Backend Media app: http://backtier/media/v1
+* Backend Media app version 2: http://backtier/media/v2</p>
+<p>Now we need a 2nd Traefik instance to handle these ones<br>
+Both of these 2 Traefik instances will listen on port 80 and 443, but only the <code>fronttier</code> Traefik instance docker container exposed/mapped to Node port 80 and 443, the <code>backtier</code> mapped to different ports or simply no need to map to Node Ports</p>
+<p>All the frontend containers can use http://backtier to access the <code>backtier</code> Traefik service anyway.</p>
+<p>Because we allow any container to deploy on any hosts to provide maximum flexibility, we will use a trick to differentiate which contains should be managed by which Traefik instance</p>
+<p>The way to achieve that is to use a tag on the Traefik service like <code>"--constraints=tag==traefik-fronttier"</code><br>
+All the containers with a tag like <code>traefik-tags=traefik-fronttier</code> will be associated only to the "fronttier" Traefik instance<br>
+The same type of config works for backtier apps as well.</p>
+<h2 id="traefik-service-act-as-load-balancer">Traefik service act as load-balancer</h2>
+<p>There are 2 Traefik instances to handle both fronttier and backtier services</p>
+<p><strong>Note:</strong>
+- <code>"--constraints=tag==traefik-fronttier"</code> controls only the containers with <code>traefik-tags=traefik-fronttier</code> tags will be controlled by the <code>fronttier</code> traefik controller
+- <code>"--constraints=tag==traefik-backtier"</code> controls only the containers with <code>traefik-tags=traefik-backtier</code> tags will be controlled by the <code>backtier</code> traefik controller
+- <code>restart_policy</code> set to <code>condition: any</code> will allow these 2 <code>traefik</code> container/service to auto restart after node reboot or docker daemon reboot.
+- <code>constraints: [node.role == manager]</code> will force these 2 <code>traefik</code> services to run only on Swarm Manager role nodes</p>
+<pre><code class="yml">version: '3.3'
+
+networks:
+   frontend:
+       driver: overlay
+       attachable: true
+
+volumes:
+    data:
+
+services:
+  fronttier:
+    image: devmr1oktodock1:5000/traefik:1.7
+    command:
+      - &quot;--docker&quot;
+      - &quot;--docker.swarmmode=true&quot;
+      - &quot;--docker.domain=docker.localhost&quot;
+      - &quot;--docker.watch=true&quot;
+      - &quot;--docker.exposedbydefault=true&quot;
+      - &quot;--docker.endpoint=unix:///var/run/docker.sock&quot;
+      - &quot;--constraints=tag==traefik-fronttier&quot;
+      - &quot;--web&quot;
+    ports:
+      - &quot;80:80&quot;      # The HTTP port
+      - &quot;443:443&quot;
+      - &quot;8000:8080&quot; # API
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # So that Traefik can listen to the Docker events
+    networks:
+      - frontend
+    labels:
+      - &quot;traefik.enable=false&quot;
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        #condition: on-failure
+        condition: any
+
+  backtier:
+    image: devmr1oktodock1:5000/traefik:1.7
+    command:
+      - &quot;--docker&quot;
+      - &quot;--docker.swarmmode=true&quot;
+      - &quot;--docker.domain=docker.localhost&quot;
+      - &quot;--docker.watch=true&quot;
+      - &quot;--docker.exposedbydefault=true&quot;
+      - &quot;--docker.endpoint=unix:///var/run/docker.sock&quot;
+      - &quot;--constraints=tag==traefik-backtier&quot;
+      - &quot;--web&quot;
+      - &quot;--loglevel=DEBUG&quot;
+    ports:
+      - &quot;7180:80&quot;      # The HTTP port
+      - &quot;7443:443&quot;
+      - &quot;7880:8080&quot; # API
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # So that Traefik can listen to the Docker events
+    networks:
+      - frontend
+    labels:
+      - &quot;traefik.enable=false&quot;
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: any
+
+</code></pre>
+
+<h2 id="frontier-service-example">Frontier service example</h2>
+<p>The following simulate a simple fronttier webapp
+<strong>Note:</strong>
+- <code>extra_hosts</code> are the list of the hosts <br>Docker will put them into the container's /etc/hosts file<br>
+This sample lists external IP for the <code>redis</code>, <code>mongodb</code> and <code>consul</code> services.<br>
+<code>extra_hosts</code> will allow apps in docker container to communicate to external services</p>
+<ul>
+<li>
+<p><code>constraints: - node.role == worker</code> set the service contains to run only in nodes whose role is a <code>worker</code></p>
+</li>
+<li>
+<p><code>- "traefik.basic.port=5000"</code>  this is the port for our <code>webapp:1.1</code> service. This webapp listens and exposes on port 5000</p>
+</li>
+<li><code>- "traefik.frontend.rule=PathPrefixStrip:/webapp"</code> this is Traefik setting for URL mapping. Any request to /webapp will be forwarded to port 5000 (the webapp service itself)</li>
+<li><code>"traefik.backend=webapp"</code> set the name of the service Traefik will forward the request to, which is the service itself</li>
+<li><code>- "traefik.docker.network=okto_frontend"</code> this is the Docker <code>overlay</code> network which Traefik and all services use to communicate</li>
+<li><code>- "traefik.tags=traefik-fronttier"</code> is to set the <code>webapp</code> service to associate with the <code>traefik-fronttier</code> Traefik instance</li>
+</ul>
+<pre><code class="yml">version: &quot;3.3&quot;
+services:
+   webapp:
+      image: devmr1oktodock1:5000/webapp:1.1
+      extra_hosts:
+         - &quot;redis:172.25.83.76&quot;
+         - &quot;mongodb:172.25.83.64&quot;
+         - &quot;consul:172.25.83.61&quot;
+      networks:
+         - frontend
+      deploy:
+        placement:
+          constraints:
+            - node.role == worker
+        restart_policy:
+          condition: on-failure
+        labels:
+          - &quot;traefik.enable=true&quot;
+          - &quot;traefik.basic.port=5000&quot;
+          - &quot;traefik.basic.protocol=http&quot;
+          - &quot;traefik.backend=webapp&quot;
+          - &quot;traefik.frontend.rule=PathPrefixStrip:/webapp&quot;
+          - &quot;traefik.docker.network=okto_frontend&quot;
+          - &quot;traefik.backend.loadbalancer.swarm=true&quot;
+          - &quot;traefik.tags=traefik-fronttier&quot;
+
+</code></pre>
+
+<h2 id="backtier-service-example">Backtier service example</h2>
+<pre><code class="yml">   whoami:
+     image: devmr1oktodock1:5000/whoami:latest
+     extra_hosts:
+        - &quot;redis:172.25.83.76&quot;
+        - &quot;mongodb:172.25.83.64&quot;
+        - &quot;consul:172.25.83.61&quot;
+     networks:
+        - frontend
+     deploy:
+       placement:
+         constraints:
+           - node.role == worker
+       restart_policy:
+         condition: on-failure
+       labels:
+         - &quot;traefik.enable=true&quot;
+         - &quot;traefik.basic.port=80&quot;
+         - &quot;traefik.basic.protocol=http&quot;
+         - &quot;traefik.backend=whoami&quot;
+         - &quot;traefik.frontend.rule=PathPrefixStrip:/whoami&quot;
+         - &quot;traefik.docker.network=okto_frontend&quot;
+         - &quot;traefik.backend.loadbalancer.swarm=true&quot;
+         - &quot;traefik.tags=traefik-backtier&quot;
+
+networks:
+   frontend:
+       driver: overlay
+       attachable: true
+</code></pre>
+
+<h2 id="steps-to-deploy-and-test">Steps to deploy and test</h2>
+<pre><code class="bash">#Run this to deploy
+docker stack deploy -c docker-traefik-without-local-volumn.yml  okto
+
+#Check if 2 instance's API interface (it was started using the --web flag in the yml)
+curl --noproxy '*' http://devmr1oktodock1:8000/api
+curl --noproxy '*' http://devmr1oktodock1:7880/api
+
+</code></pre>
+
+<p>Once these 2 Traefik instances are running well, deploy both fronttier and backtier apps</p>
+<pre><code class="bash">#Run this to deploy
+docker stack deploy -c docker-webapp.yml  okto
+
+#Check the services
+ curl --noproxy '*' http://devmr1oktodock1/webapp
+ curl --noproxy '*' http://devmr1oktodock1:7180/whoami
+</code></pre>
+
+<p>The following commands will scale the services to run multiple instances then check their status</p>
+<pre><code class="bash">[root@devmr1oktodock1 multiple-traefik-stack]# docker service scale okto_webapp=3
+okto_webapp scaled to 3
+overall progress: 3 out of 3 tasks
+1/3: running   [==================================================&gt;]
+2/3: running   [==================================================&gt;]
+3/3: running   [==================================================&gt;]
+verify: Service converged
+
+[root@devmr1oktodock1 multiple-traefik-stack]# docker service ps okto_webapp
+ID                  NAME                IMAGE                             NODE                                     DESIRED STATE       CURRENT STATE            ERROR               PORTS
+ldae6tup6v8s        okto_webapp.1       devmr1oktodock1:5000/webapp:1.1   devmr1oktodock3.br.devrep.tv.telus.net   Running             Running 37 minutes ago
+etexcwod5tux        okto_webapp.2       devmr1oktodock1:5000/webapp:1.1   devmr1oktodock3.br.devrep.tv.telus.net   Running             Running 14 seconds ago
+klopqgsbw2pe        okto_webapp.3       devmr1oktodock1:5000/webapp:1.1   devmr1oktodock3.br.devrep.tv.telus.net   Running             Running 14 seconds ago
+
+
+[root@devmr1oktodock1 multiple-traefik-stack]# docker service ps okto_whoami
+ID                  NAME                IMAGE                                NODE                                     DESIRED STATE       CURRENT STATE            ERROR               PORTS
+ojzt1rgpxx4i        okto_whoami.1       devmr1oktodock1:5000/whoami:latest   devmr1oktodock2.br.devrep.tv.telus.net   Running             Running 10 minutes ago
+ji9aga2xq4e0        okto_whoami.2       devmr1oktodock1:5000/whoami:latest   devmr1oktodock1.br.devrep.tv.telus.net   Running             Running 9 minutes ago
+jbnkom5oiv2a        okto_whoami.3       devmr1oktodock1:5000/whoami:latest   devmr1oktodock3.br.devrep.tv.telus.net   Running             Running 9 minutes ago
+ww7315qshpzd        okto_whoami.4       devmr1oktodock1:5000/whoami:latest   devmr1oktodock3.br.devrep.tv.telus.net   Running             Running 9 minutes ago
+
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Kubernetes/KubernetesNotes/" class="btn btn-neutral float-right" title="Kubernetes">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="../Kubernetes/KubernetesNotes/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2019-04-21 05:56:40
+-->
