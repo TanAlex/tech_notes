@@ -85,6 +85,10 @@
                     
     <a class="" href="../Functions/">PS Functions Note</a>
                 </li>
+                <li class="">
+                    
+    <a class="" href="../Snippets/">PS Snippets</a>
+                </li>
     </ul>
 	    </li>
           
@@ -184,6 +188,13 @@ Export-ModuleMember -Function $Public.Basename -Variable _PSSlackColorMap
 
 <p>Export using wild-cards</p>
 <pre><code class="Powershell">Export-ModuleMember -Function 'Get-*'
+</code></pre>
+
+<p>Powershell will auto convert array to string with comma</p>
+<pre><code class="powershell">Export-ModuleMember -Function  @($Public + $Private))
+
+Export-ModuleMember -Function  New-GitHubOAuthToken, New-GitHubPullRequest,
+  Get-GitHubIssues, Get-GitHubEvents, Get-GitHubRepositories, ... ...
 </code></pre>
               
             </div>

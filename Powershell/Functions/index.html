@@ -76,12 +76,26 @@
         
             <li><a class="toctree-l4" href="#parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</a></li>
         
+            <li><a class="toctree-l4" href="#use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</a></li>
+        
+            <li><a class="toctree-l4" href="#use-switch-to-check-pscmdletparameterset">Use switch to check PsCmdlet.ParameterSet</a></li>
+        
             <li><a class="toctree-l4" href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
+        
+            <li><a class="toctree-l4" href="#use-try-catch-and-get-the-error-using-error0">Use try catch and get the error using $Error[0]</a></li>
+        
+            <li><a class="toctree-l4" href="#detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</a></li>
+        
+            <li><a class="toctree-l4" href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
         
         </ul>
     
 
     </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../Snippets/">PS Snippets</a>
                 </li>
     </ul>
 	    </li>
@@ -138,7 +152,12 @@
 <ul>
 <li><a href="#powershell-functions-notes">Powershell functions notes</a><ul>
 <li><a href="#parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</a></li>
+<li><a href="#use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</a></li>
+<li><a href="#use-switch-to-check-pscmdletparameterset">Use switch to check PsCmdlet.ParameterSet</a></li>
 <li><a href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
+<li><a href="#use-try-catch-and-get-the-error-using-error0">Use try catch and get the error using $Error[0]</a></li>
+<li><a href="#detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</a></li>
+<li><a href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
 </ul>
 </li>
 </ul>
@@ -151,6 +170,8 @@
 <li>[Parameter(Mandatory = $false, Position=0,  ParameterSetName='repo')]</li>
 <li>[ValidatePattern('^*$|^none$|^.+$')]</li>
 <li>[ValidateSet('open', 'closed')]</li>
+<li>Use [string[]] to indicate it's a string array @()</li>
+<li>[AllowNull()]</li>
 </ul>
 <pre><code class="Powershell">function Get-GitHubIssues
 {
@@ -206,9 +227,102 @@
 
     [Parameter(Mandatory = $false)]
     [DateTime]
+    [AllowNull()]
     #Optional string of a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
     $Since
   )
+</code></pre>
+
+<h2 id="use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</h2>
+<p><strong> Note </strong></p>
+<ul>
+<li>[Alias( 'Instance', 'Instances', 'ServerInstance')]</li>
+<li>[ValidateNotNullOrEmpty()]</li>
+<li>[Switch]</li>
+<li>[OutputType([System.Data.SQLite.SQLiteConnection])]</li>
+</ul>
+<pre><code class="Powershell">    [cmdletbinding()]
+    [OutputType([System.Data.SQLite.SQLiteConnection])]
+    param(
+        [Parameter( Position=0,
+                    Mandatory=$true,
+                    ValueFromPipeline=$true,
+                    ValueFromPipelineByPropertyName=$true,
+                    ValueFromRemainingArguments=$false,
+                    HelpMessage='SQL Server Instance required...' )]
+        [Alias( 'Instance', 'Instances', 'ServerInstance', 'Server', 'Servers','cn','Path','File','FullName','Database' )]
+        [ValidateNotNullOrEmpty()]
+        [string[]]
+        $DataSource,
+
+        [Parameter( Position=2,
+                    Mandatory=$false,
+                    ValueFromPipelineByPropertyName=$true,
+                    ValueFromRemainingArguments=$false )]
+        [System.Security.SecureString]
+        $Password,
+
+        [Parameter( Position=3,
+                    Mandatory=$false,
+                    ValueFromPipelineByPropertyName=$true,
+                    ValueFromRemainingArguments=$false )]
+        [Switch]
+        $ReadOnly,
+
+        [Parameter( Position=4,
+                    Mandatory=$false,
+                    ValueFromPipelineByPropertyName=$true,
+                    ValueFromRemainingArguments=$false )]
+        [bool]
+        $Open = $True
+    )
+</code></pre>
+
+<h2 id="use-switch-to-check-pscmdletparameterset">Use switch to check PsCmdlet.ParameterSet</h2>
+<p><strong> Note </strong></p>
+<ul>
+<li>[string]::IsNullOrEmpty</li>
+<li>use <code>throw "Error message"</code> to throw an error</li>
+<li>For long lines, use ` to continue lines</li>
+</ul>
+<pre><code class="Powershell">  switch ($PsCmdlet.ParameterSetName)
+    {
+      'repo'
+      {
+        $missingOwner = [string]::IsNullOrEmpty($Owner)
+        $missingRepo = [string]::IsNullOrEmpty($Repository)
+        if ($missingOwner -and $missingRepo)
+        {
+          $remotes = GetRemotes
+          #first remote in order here wins!
+          'upstream', 'origin' |
+            % {
+              if ([string]::IsNullOrEmpty($Owner) -and $remotes.$_)
+              {
+                $Owner = $remotes.$_.owner
+                $Repository = $remotes.$_.repository
+                Write-Host &quot;Found $_ remote with owner $Owner&quot;
+              }
+            }
+... ...
+          throw &quot;An Owner and Repository must be specified together&quot;
+        }
+
+        # accept null or lower case
+        if ($Milestone) { $Milestone = $Milestone.ToLower() }
+        GetRepoIssues $Owner $Repository $Milestone $State.ToLower() `
+          $Assignee $Creator $Mentioned $Labels $Sort.ToLower() `
+          $Direction.ToLower() $PsBoundParameters.Since
+      }
+      'user'
+      {
+        if ([string]::IsNullOrEmpty($Env:GITHUB_OAUTH_TOKEN))
+          { throw &quot;Set GITHUB_OAUTH_TOKEN env variable &quot;}
+
+        GetUserIssues $Filter.ToLower() $State.ToLower() $Labels `
+          $Sort.ToLower() $Direction.ToLower() $PsBoundParameters.Since
+      }
+    }
 </code></pre>
 
 <h2 id="use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</h2>
@@ -252,6 +366,71 @@ then use <code>ToBase64String</code> to convert them to base64 string</p>
   }
 }
 </code></pre>
+
+<h2 id="use-try-catch-and-get-the-error-using-error0">Use try catch and get the error using $Error[0]</h2>
+<pre><code class="Powershell">catch
+  {
+    Write-Error &quot;An unexpected error occurred $($Error[0])&quot;
+  }
+</code></pre>
+
+<h2 id="detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</h2>
+<pre><code class="powershell">#Pick and import assemblies:
+    if([IntPtr]::size -eq 8) #64
+    {
+        $SQLiteAssembly = Join-path $PSScriptRoot &quot;x64\System.Data.SQLite.dll&quot;
+    }
+    elseif([IntPtr]::size -eq 4) #32
+    {
+        $SQLiteAssembly = Join-path $PSScriptRoot &quot;x86\System.Data.SQLite.dll&quot;
+    }
+    else
+    {
+        Throw &quot;Something is odd with bitness...&quot;
+    }
+
+    if( -not ($Library = Add-Type -path $SQLiteAssembly -PassThru -ErrorAction stop) )
+    {
+        Throw &quot;This module requires the ADO.NET driver for SQLite:`n`thttp://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki&quot;
+    }
+</code></pre>
+
+<h2 id="use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</h2>
+<pre><code>get-process| select ProcessName, @{ Name=&quot;Start Day&quot;; Expression={$_.StartTime.DayOfWeek}} | select -First 4
+
+ProcessName      Start Day
+-----------      ---------
+AccelerometerSt     Sunday
+AcroRd32            Monday
+AcroRd32            Monday
+Adobe CEF Helper    Sunday
+</code></pre>
+
+<pre><code>Display only the name, ID and Working Set(WS) properties of Get-Process:
+
+PS C:\&gt; get-process | select-object ProcessName,Id,WS
+
+Display only the Name and modules properties of Get-Process, use -ExpandProperty to display the details contained within the modules property:
+
+PS C:\&gt; get-process | select-object ProcessName -expandproperty modules | format-list
+
+Display the 5 processes that are using the most memory (WS=Working Set):
+
+PS C:\&gt; get-process | sort-object -property WS | select-object -Last 5
+
+Display the name and claculate the start day of the processes running:
+
+PS C:\&gt; get-process | select-object ProcessName,@{Name=&quot;Start Day&quot;; Expression={$_.StartTime.DayOfWeek}}
+
+Get the first (newest) and last (oldest) events in the Windows PowerShell event log:
+
+PS C:\&gt; $evts = get-eventlog -log &quot;Windows PowerShell&quot; 
+PS C:\&gt; $evts | select-object -index 0, ($evts.count - 1)
+
+Retrieve all the names listed in the Servers.txt file, except for the first one:
+
+PS C:\&gt; get-content servers.txt | select-object -skip 1
+</code></pre>
               
             </div>
           </div>
@@ -259,7 +438,7 @@ then use <code>ToBase64String</code> to convert them to base64 string</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../DockerSwarm/" class="btn btn-neutral float-right" title="DockerSwarm">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../Snippets/" class="btn btn-neutral float-right" title="PS Snippets">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../Module/" class="btn btn-neutral" title="PS Modules Note"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -291,7 +470,7 @@ then use <code>ToBase64String</code> to convert them to base64 string</p>
         <span><a href="../Module/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../../DockerSwarm/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../Snippets/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
