@@ -78,15 +78,7 @@
         
             <li><a class="toctree-l4" href="#use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</a></li>
         
-            <li><a class="toctree-l4" href="#use-switch-to-check-pscmdletparameterset">Use switch to check PsCmdlet.ParameterSet</a></li>
-        
-            <li><a class="toctree-l4" href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
-        
-            <li><a class="toctree-l4" href="#use-try-catch-and-get-the-error-using-error0">Use try catch and get the error using $Error[0]</a></li>
-        
-            <li><a class="toctree-l4" href="#detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</a></li>
-        
-            <li><a class="toctree-l4" href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
+            <li><a class="toctree-l4" href="#function-help-doc-string">Function help doc string</a></li>
         
         </ul>
     
@@ -153,11 +145,7 @@
 <li><a href="#powershell-functions-notes">Powershell functions notes</a><ul>
 <li><a href="#parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</a></li>
 <li><a href="#use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</a></li>
-<li><a href="#use-switch-to-check-pscmdletparameterset">Use switch to check PsCmdlet.ParameterSet</a></li>
-<li><a href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
-<li><a href="#use-try-catch-and-get-the-error-using-error0">Use try catch and get the error using $Error[0]</a></li>
-<li><a href="#detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</a></li>
-<li><a href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
+<li><a href="#function-help-doc-string">Function help doc string</a></li>
 </ul>
 </li>
 </ul>
@@ -278,158 +266,54 @@
     )
 </code></pre>
 
-<h2 id="use-switch-to-check-pscmdletparameterset">Use switch to check PsCmdlet.ParameterSet</h2>
-<p><strong> Note </strong></p>
-<ul>
-<li>[string]::IsNullOrEmpty</li>
-<li>use <code>throw "Error message"</code> to throw an error</li>
-<li>For long lines, use ` to continue lines</li>
-</ul>
-<pre><code class="Powershell">  switch ($PsCmdlet.ParameterSetName)
-    {
-      'repo'
-      {
-        $missingOwner = [string]::IsNullOrEmpty($Owner)
-        $missingRepo = [string]::IsNullOrEmpty($Repository)
-        if ($missingOwner -and $missingRepo)
-        {
-          $remotes = GetRemotes
-          #first remote in order here wins!
-          'upstream', 'origin' |
-            % {
-              if ([string]::IsNullOrEmpty($Owner) -and $remotes.$_)
-              {
-                $Owner = $remotes.$_.owner
-                $Repository = $remotes.$_.repository
-                Write-Host &quot;Found $_ remote with owner $Owner&quot;
-              }
-            }
-... ...
-          throw &quot;An Owner and Repository must be specified together&quot;
-        }
-
-        # accept null or lower case
-        if ($Milestone) { $Milestone = $Milestone.ToLower() }
-        GetRepoIssues $Owner $Repository $Milestone $State.ToLower() `
-          $Assignee $Creator $Mentioned $Labels $Sort.ToLower() `
-          $Direction.ToLower() $PsBoundParameters.Since
-      }
-      'user'
-      {
-        if ([string]::IsNullOrEmpty($Env:GITHUB_OAUTH_TOKEN))
-          { throw &quot;Set GITHUB_OAUTH_TOKEN env variable &quot;}
-
-        GetUserIssues $Filter.ToLower() $State.ToLower() $Labels `
-          $Sort.ToLower() $Direction.ToLower() $PsBoundParameters.Since
-      }
-    }
-</code></pre>
-
-<h2 id="use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</h2>
-<p>it's using basic auth, use <code>GetBytes</code> to convert string to bytes
-then use <code>ToBase64String</code> to convert them to base64 string</p>
-<pre><code class="Powershell">function Get-GitHubOAuthTokens
+<h2 id="function-help-doc-string">Function help doc string</h2>
+<pre><code class="Powershell">function Out-DataTable
 {
-  [CmdletBinding()]
-  param(
-    [Parameter(Mandatory = $true)]
-    [string]
-    $UserName,
+&lt;#
+.SYNOPSIS
+    Creates a DataTable for an object
+.DESCRIPTION
+    Creates a DataTable based on an object's properties.
+.PARAMETER InputObject
+    One or more objects to convert into a DataTable
+.PARAMETER NonNullable
+    A list of columns to set disable AllowDBNull on
+.INPUTS
+    Object
+        Any object can be piped to Out-DataTable
+.OUTPUTS
+   System.Data.DataTable
+.EXAMPLE
+    $dt = Get-psdrive | Out-DataTable
 
-    [Parameter(Mandatory = $true)]
-    [string]
-    $Password
-  )
-
-  try
-  {
-    $params = @{
-      Uri = 'https://api.github.com/authorizations';
-      Headers = @{
-        Authorization = 'Basic ' + [Convert]::ToBase64String(
-          [Text.Encoding]::ASCII.GetBytes(&quot;$($userName):$($password)&quot;));
-      }
-    }
-    $global:GITHUB_API_OUTPUT = Invoke-RestMethod @params
-    #Write-Verbose $global:GITHUB_API_OUTPUT
-
-    $global:GITHUB_API_OUTPUT |
-      % {
-        $date = [DateTime]::Parse($_.created_at).ToString('g')
-        Write-Host &quot;`n$($_.app.name) - Created $date&quot;
-        Write-Host &quot;`t$($_.token)`n`t$($_.app.url)&quot;
-      }
-  }
-  catch
-  {
-    Write-Error &quot;An unexpected error occurred (bad user/password?) $($Error[0])&quot;
-  }
-}
-</code></pre>
-
-<h2 id="use-try-catch-and-get-the-error-using-error0">Use try catch and get the error using $Error[0]</h2>
-<pre><code class="Powershell">catch
-  {
-    Write-Error &quot;An unexpected error occurred $($Error[0])&quot;
-  }
-</code></pre>
-
-<h2 id="detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</h2>
-<pre><code class="powershell">#Pick and import assemblies:
-    if([IntPtr]::size -eq 8) #64
-    {
-        $SQLiteAssembly = Join-path $PSScriptRoot &quot;x64\System.Data.SQLite.dll&quot;
-    }
-    elseif([IntPtr]::size -eq 4) #32
-    {
-        $SQLiteAssembly = Join-path $PSScriptRoot &quot;x86\System.Data.SQLite.dll&quot;
-    }
-    else
-    {
-        Throw &quot;Something is odd with bitness...&quot;
-    }
-
-    if( -not ($Library = Add-Type -path $SQLiteAssembly -PassThru -ErrorAction stop) )
-    {
-        Throw &quot;This module requires the ADO.NET driver for SQLite:`n`thttp://system.data.sqlite.org/index.html/doc/trunk/www/downloads.wiki&quot;
-    }
-</code></pre>
-
-<h2 id="use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</h2>
-<pre><code>get-process| select ProcessName, @{ Name=&quot;Start Day&quot;; Expression={$_.StartTime.DayOfWeek}} | select -First 4
-
-ProcessName      Start Day
------------      ---------
-AccelerometerSt     Sunday
-AcroRd32            Monday
-AcroRd32            Monday
-Adobe CEF Helper    Sunday
-</code></pre>
-
-<pre><code>Display only the name, ID and Working Set(WS) properties of Get-Process:
-
-PS C:\&gt; get-process | select-object ProcessName,Id,WS
-
-Display only the Name and modules properties of Get-Process, use -ExpandProperty to display the details contained within the modules property:
-
-PS C:\&gt; get-process | select-object ProcessName -expandproperty modules | format-list
-
-Display the 5 processes that are using the most memory (WS=Working Set):
-
-PS C:\&gt; get-process | sort-object -property WS | select-object -Last 5
-
-Display the name and claculate the start day of the processes running:
-
-PS C:\&gt; get-process | select-object ProcessName,@{Name=&quot;Start Day&quot;; Expression={$_.StartTime.DayOfWeek}}
-
-Get the first (newest) and last (oldest) events in the Windows PowerShell event log:
-
-PS C:\&gt; $evts = get-eventlog -log &quot;Windows PowerShell&quot; 
-PS C:\&gt; $evts | select-object -index 0, ($evts.count - 1)
-
-Retrieve all the names listed in the Servers.txt file, except for the first one:
-
-PS C:\&gt; get-content servers.txt | select-object -skip 1
+    # This example creates a DataTable from the properties of Get-psdrive and assigns output to $dt variable
+.EXAMPLE
+    Get-Process | Select Name, CPU | Out-DataTable | Invoke-SQLBulkCopy -ServerInstance $SQLInstance -Database $Database -Table $SQLTable -force -verbose
+    # Get a list of processes and their CPU, create a datatable, bulk import that data
+.NOTES
+    Adapted from script by Marc van Orsouw and function from Chad Miller
+    Version History
+    v1.0  - Chad Miller - Initial Release
+    v1.1  - Chad Miller - Fixed Issue with Properties
+    v1.2  - Chad Miller - Added setting column datatype by property as suggested by emp0
+    v1.3  - Chad Miller - Corrected issue with setting datatype on empty properties
+    v1.4  - Chad Miller - Corrected issue with DBNull
+    v1.5  - Chad Miller - Updated example
+    v1.6  - Chad Miller - Added column datatype logic with default to string
+    v1.7  - Chad Miller - Fixed issue with IsArray
+    v1.8  - ramblingcookiemonster - Removed if($Value) logic.  This would not catch empty strings, zero, $false and other non-null items
+                                  - Added perhaps pointless error handling
+.LINK
+    https://github.com/RamblingCookieMonster/PowerShell
+.LINK
+    Invoke-SQLBulkCopy
+.LINK
+    Invoke-Sqlcmd2
+.LINK
+    New-SQLConnection
+.FUNCTIONALITY
+    SQL
+#&gt;
 </code></pre>
               
             </div>
