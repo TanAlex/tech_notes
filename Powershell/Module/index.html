@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>PS Modules Note - Tech Notes</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "PS Modules Note";
+    var mkdocs_page_input_path = "Powershell\\Module.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Tech Notes</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Powershell</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../">Powershell Note</a>
+                </li>
+                <li class=" current">
+                    
+    <a class="current" href="./">PS Modules Note</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#ps-modules">PS Modules</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#use-set-alias-to-link-function-in-module-to-a-script">Use Set-Alias to link function in module to a script</a></li>
+        
+            <li><a class="toctree-l4" href="#import-all-function-scripts-in-a-folder">Import all function scripts in a folder</a></li>
+        
+            <li><a class="toctree-l4" href="#export-functions">Export functions</a></li>
+        
+        </ul>
+    
+
+    </ul>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../Functions/">PS Functions Note</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../DockerSwarm/">DockerSwarm</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Kubernetes/KubernetesNotes/">Kubernetes</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Tech Notes</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+        
+          <li>Powershell &raquo;</li>
+        
+      
+    
+    <li>PS Modules Note</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="ps-modules">PS Modules</h1>
+<h2 id="use-set-alias-to-link-function-in-module-to-a-script">Use Set-Alias to link function in module to a script</h2>
+<p>Typically, functions are in the psm1 file but you can write in regular script files<br />
+then use Set-Alias to link them in the psm1 module file</p>
+<pre><code class="Powershell">Set-Alias -Name Build-Checkpoint -Value (Join-Path $PSScriptRoot Build-Checkpoint.ps1)
+Set-Alias -Name Build-Parallel -Value (Join-Path $PSScriptRoot Build-Parallel.ps1)
+Set-Alias -Name Invoke-Build -Value (Join-Path $PSScriptRoot Invoke-Build.ps1)
+Export-ModuleMember -Alias Build-Checkpoint, Build-Parallel, Invoke-Build
+</code></pre>
+
+<h2 id="import-all-function-scripts-in-a-folder">Import all function scripts in a folder</h2>
+<p>This snipet is from <a href="https://github.com/RamblingCookieMonster/PSSlack/blob/master/PSSlack/PSSlack.psm1">PSSlack.psm1</a></p>
+<pre><code class="powershell">#Get public and private function definition files.
+    $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
+    $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
+    $ModuleRoot = $PSScriptRoot
+
+#Dot source the files
+Foreach($import in @($Public + $Private))
+{
+    Try
+    {
+        . $import.fullname
+    }
+    Catch
+    {
+        Write-Error -Message &quot;Failed to import function $($import.fullname): $_&quot;
+    }
+}
+</code></pre>
+
+<blockquote>
+<p>Beginning in PowerShell 3.0, there is a new automatic variable available called $PSScriptRoot. This variable previously was only available within modules. It always points to the folder the current script is located in (so it only starts to be useful once you actually save a script before you run it).</p>
+<p>You can use $PSScriptRoot to load additional resources relative to your script location. For example, if you decide to place some functions in a separate "library" script that is located in the same folder, this would load the library script and import all of its functions</p>
+</blockquote>
+<p>The following snipet handles PS v2 situation</p>
+<pre><code class="powershell">#handle PS2
+    if(-not $PSScriptRoot)
+    {
+        $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
+    }
+</code></pre>
+
+<h2 id="export-functions">Export functions</h2>
+<pre><code class="Powershell"># $Public is an array imported above
+Export-ModuleMember -Function $Public.Basename -Variable _PSSlackColorMap
+</code></pre>
+
+<p>Export using wild-cards</p>
+<pre><code class="Powershell">Export-ModuleMember -Function 'Get-*'
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Functions/" class="btn btn-neutral float-right" title="PS Functions Note">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../" class="btn btn-neutral" title="Powershell Note"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../Functions/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>
