@@ -16,6 +16,6 @@ mkdocs gh-deploy
 
 ```
 It will be published on
-https://tanalex.github.io/tech_notes/
+[https://tanalex.github.io/tech_notes/](https://tanalex.github.io/tech_notes/)
 
 

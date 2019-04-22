@@ -1,6 +1,11 @@
 site_name: Tech Notes
 
 nav:
+    - Home: index.md
+    - 'Powershell':
+      - 'Powershell Note': Powershell/README.md
+      - 'PS Modules Note': Powershell/Module.md
+      - 'PS Functions Note': Powershell/Functions.md
     - DockerSwarm: DockerSwarm/README.md
     - Kubernetes: Kubernetes/KubernetesNotes.md
 theme: readthedocs
