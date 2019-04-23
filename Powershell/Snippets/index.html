@@ -98,6 +98,8 @@
         
             <li><a class="toctree-l4" href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
         
+            <li><a class="toctree-l4" href="#environment-variables">Environment variables</a></li>
+        
         </ul>
     
 
@@ -167,6 +169,7 @@
 <li><a href="#use-try-catch-and-get-the-error-using-error0">Use try catch and get the error using $Error[0]</a></li>
 <li><a href="#detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</a></li>
 <li><a href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
+<li><a href="#environment-variables">Environment variables</a></li>
 </ul>
 </li>
 </ul>
@@ -439,6 +442,44 @@ PS C:\&gt; $evts | select-object -index 0, ($evts.count - 1)
 Retrieve all the names listed in the Servers.txt file, except for the first one:
 
 PS C:\&gt; get-content servers.txt | select-object -skip 1
+</code></pre>
+
+<h2 id="environment-variables">Environment variables</h2>
+<p>powershell gci env:</p>
+<pre><code># list environment variables
+dir env:
+# or
+gci env:
+
+# show env vars whose name contains “path”
+Get-ChildItem Env:*path* | format-list
+
+# show value of “path”
+$env:path
+</code></pre>
+
+<p>Set or Remove</p>
+<pre><code># sets a env var named myX for current session
+$env:myX = &quot;alice&quot;
+# get value of a env var
+$env:myX
+# deleting a env var from the current session
+Remove-Item env:myX
+# adding path to the path env var
+$env:path = $env:path + &quot;;C:\Program Files (x86)\ErgoEmacs\hunspell&quot;
+</code></pre>
+
+<p>View/Set <strong>Permament Environment Variables</strong></p>
+<p>Permanent env vars are stored in Windows Registry. When PowerShell launches, it reads the registry to get the env vars for the current session. However, it does not update the registry whenever you create or remove a env var using the env: provider. To manipulate env var in the registry for permanent use, use the .NET object like the following:</p>
+<p>View</p>
+<pre><code># displaying a env var named “myY” of the category “User”.
+[environment]::GetEnvironmentVariable(&quot;myY&quot;, &quot;User&quot;)
+The possible values for the second argument in GetEnvironmentVariable are: &quot;Process&quot;, &quot;User&quot;, &quot;Machine&quot;.
+</code></pre>
+
+<p>Create, Set</p>
+<pre><code># creates “myY” of category “User”, and set the value to “&quot;la la&quot;”
+[Environment]::SetEnvironmentVariable(&quot;myY&quot;, &quot;la la&quot;, &quot;User&quot;)
 </code></pre>
               
             </div>

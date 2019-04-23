@@ -196,6 +196,20 @@ Export-ModuleMember -Function $Public.Basename -Variable _PSSlackColorMap
 Export-ModuleMember -Function  New-GitHubOAuthToken, New-GitHubPullRequest,
   Get-GitHubIssues, Get-GitHubEvents, Get-GitHubRepositories, ... ...
 </code></pre>
+
+<h3 id="check-if-the-script-is-called-by-dot-source-or-by-module-psm1">Check if the script is called by Dot Source or by Module (psm1)</h3>
+<pre><code class="Powershell"># if it's not dot sourced, call the function
+# Note: $args is an array, in order to pass them to function
+#       need to convert that array to a space separated string
+if ( $MyInvocation.InvocationName -ne '.' -AND $MyInvocation.Line -ne '' ){
+    Okto-UsersGet ($args[1..$($args.Length-1)] -join &quot; &quot;)
+}
+
+#Check if it's called by psm1 module
+if ($MyInvocation.MyCommand.Name.EndsWith('.psm1')){
+     Export-ModuleMember -Function &quot;Set-Okto-Login&quot;
+}
+</code></pre>
               
             </div>
           </div>
