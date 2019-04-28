@@ -202,7 +202,8 @@ Export-ModuleMember -Function  New-GitHubOAuthToken, New-GitHubPullRequest,
 # Note: $args is an array, in order to pass them to function
 #       need to convert that array to a space separated string
 if ( $MyInvocation.InvocationName -ne '.' -AND $MyInvocation.Line -ne '' ){
-    Okto-UsersGet ($args[1..$($args.Length-1)] -join &quot; &quot;)
+    $new_args = $args[1..$($args.Length-1)] -join &quot; &quot;
+    Invoke-Expression &quot;Okto-Login $new_args&quot;
 }
 
 #Check if it's called by psm1 module

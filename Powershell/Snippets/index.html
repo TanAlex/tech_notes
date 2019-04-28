@@ -82,7 +82,9 @@
         
             <li><a class="toctree-l4" href="#convert-between-secure-password-and-plain-password">Convert between Secure Password and Plain Password</a></li>
         
-            <li><a class="toctree-l4" href="#write-debug-write-verbose-write-error-and-out-string">Write-Debug, Write-Verbose, Write-Error and Out-String</a></li>
+            <li><a class="toctree-l4" href="#write-debug-write-verbose-write-error-and-out-string-out-null">Write-Debug, Write-Verbose, Write-Error and Out-String, Out-Null</a></li>
+        
+            <li><a class="toctree-l4" href="#all-convertfrom-json-create-a-psobject-loop-its-property">All ConvertFrom-Json create a PSObject, loop its property</a></li>
         
             <li><a class="toctree-l4" href="#create-a-c-function-and-populate-psobject-in-the-function">Create a C# function and populate PSObject in the function</a></li>
         
@@ -161,7 +163,8 @@
 <li><a href="#common-ps-snippets">Common PS Snippets</a><ul>
 <li><a href="#select-string">Select-String</a></li>
 <li><a href="#convert-between-secure-password-and-plain-password">Convert between Secure Password and Plain Password</a></li>
-<li><a href="#write-debug-write-verbose-write-error-and-out-string">Write-Debug, Write-Verbose, Write-Error and Out-String</a></li>
+<li><a href="#write-debug-write-verbose-write-error-and-out-string-out-null">Write-Debug, Write-Verbose, Write-Error and Out-String, Out-Null</a></li>
+<li><a href="#all-convertfrom-json-create-a-psobject-loop-its-property">All ConvertFrom-Json create a PSObject, loop its property</a></li>
 <li><a href="#create-a-c-function-and-populate-psobject-in-the-function">Create a C# function and populate PSObject in the function</a></li>
 <li><a href="#use-switch-statement">Use switch statement</a></li>
 <li><a href="#use-switch-to-check-pscmdletparameterset">Use switch to check PsCmdlet.ParameterSet</a></li>
@@ -212,8 +215,18 @@ PS C:\&gt; $demo | select-string &quot;Total Sales&quot; | %{$_.line.split()}
 }
 </code></pre>
 
-<h2 id="write-debug-write-verbose-write-error-and-out-string">Write-Debug, Write-Verbose, Write-Error and Out-String</h2>
-<pre><code>Try
+<h2 id="write-debug-write-verbose-write-error-and-out-string-out-null">Write-Debug, Write-Verbose, Write-Error and Out-String, Out-Null</h2>
+<p>Write-Debug won't print out anything unless you set</p>
+<pre><code>$DebugPreference = &quot;Continue&quot;
+</code></pre>
+
+<p>That will cause all Write-Debug to print </p>
+<p>To set it back to defualt</p>
+<pre><code>$DebugPreference = SilentlyContinue
+</code></pre>
+
+<p>Will stop printing Write-Debug again</p>
+<pre><code class="powershell">Try
 {
     $conn.Open() 
 }
@@ -225,6 +238,19 @@ Catch
 
 Write-Debug &quot;ConnectionString $ConnectionString&quot;
 Write-Verbose &quot;Created SQLiteConnection:`n$($Conn | Out-String)&quot;
+</code></pre>
+
+<p>Out-Null will supress print, useful for some cmdlet which produce unnecessary output</p>
+<pre><code class="powershell">New-Item -ItemType directory -Path $APP_SETTING_DIR | Out-Null
+</code></pre>
+
+<h2 id="all-convertfrom-json-create-a-psobject-loop-its-property">All ConvertFrom-Json create a PSObject, loop its property</h2>
+<p><code>PSObject.Properties</code> gets all the Keys (properties), feed to ForEach (%), every item has Name and Value 
+use <code>$_.Name</code> and <code>$_.Value</code> to access all the properties</p>
+<pre><code class="powershell">    $config_settings = gc $config_file | ConvertFrom-Json
+    Write-Debug $config_settings.alternative_clients
+    $client_options = $config_settings.alternative_clients.PSObject.Properties | ForEach-Object{ $_.Name }
+    $clients_option_string =$client_options -join &quot;,&quot;
 </code></pre>
 
 <h2 id="create-a-c-function-and-populate-psobject-in-the-function">Create a C# function and populate PSObject in the function</h2>

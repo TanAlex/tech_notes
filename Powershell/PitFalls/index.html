@@ -5,25 +5,25 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="None">
   
-  <link rel="shortcut icon" href="img/favicon.ico">
-  <title>Home - Tech Notes</title>
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>Powershell PitFalls - Tech Notes</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Home";
-    var mkdocs_page_input_path = "README.md";
+    var mkdocs_page_name = "Powershell PitFalls";
+    var mkdocs_page_input_path = "Powershell\\PitFalls.md";
     var mkdocs_page_url = null;
   </script>
   
-  <script src="js/jquery-2.1.1.min.js" defer></script>
-  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
@@ -36,9 +36,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="." class="icon icon-home"> Tech Notes</a>
+        <a href="../.." class="icon icon-home"> Tech Notes</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -48,21 +48,9 @@
 	<ul class="current">
 	  
           
-            <li class="toctree-l1 current">
+            <li class="toctree-l1">
 		
-    <a class="current" href=".">Home</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l2"><a href="#tech-notes">Tech Notes</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l3" href="#run-mkdocs-to-generate-sites-htmls">Run mkdocs to generate sites htmls</a></li>
-        
-        </ul>
-    
-
-    </ul>
+    <a class="" href="../..">Home</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -71,31 +59,31 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="Powershell/">Powershell Note</a>
+    <a class="" href="../">Powershell Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="Powershell/Module/">PS Modules Note</a>
+    <a class="" href="../Module/">PS Modules Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="Powershell/Functions/">PS Functions Note</a>
+    <a class="" href="../Functions/">PS Functions Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="Powershell/Snippets/">PS Snippets</a>
+    <a class="" href="../Snippets/">PS Snippets</a>
                 </li>
     </ul>
 	    </li>
           
             <li class="toctree-l1">
 		
-    <a class="" href="DockerSwarm/">DockerSwarm</a>
+    <a class="" href="../../DockerSwarm/">DockerSwarm</a>
 	    </li>
           
             <li class="toctree-l1">
 		
-    <a class="" href="Kubernetes/KubernetesNotes/">Kubernetes</a>
+    <a class="" href="../../Kubernetes/KubernetesNotes/">Kubernetes</a>
 	    </li>
           
         </ul>
@@ -108,7 +96,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href=".">Tech Notes</a>
+        <a href="../..">Tech Notes</a>
       </nav>
 
       
@@ -116,11 +104,11 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href=".">Docs</a> &raquo;</li>
+    <li><a href="../..">Docs</a> &raquo;</li>
     
       
     
-    <li>Home</li>
+    <li>Powershell PitFalls</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -130,39 +118,32 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="tech-notes">Tech Notes</h1>
-<!-- TOC -->
-
-<ul>
-<li><a href="#tech-notes">Tech Notes</a><ul>
-<li><a href="#run-mkdocs-to-generate-sites-htmls">Run mkdocs to generate sites htmls</a></li>
-</ul>
-</li>
-</ul>
-<!-- /TOC -->
-
-<h2 id="run-mkdocs-to-generate-sites-htmls">Run mkdocs to generate sites htmls</h2>
-<pre><code>mkdocs build
-mkdocs serve
-
-# publish to git pages
-mkdocs gh-deploy
-
+                <h1 id="powershell-pitfalls">Powershell PitFalls</h1>
+<h2 id="do-not-use-variable-to-print-result">Do not use "$variable" to print result</h2>
+<p>Use <code>Write-Debug</code> to debug variable<br />
+If you use <code>"$variable"</code>, it will be "pushed" to the return value 
+So if you have function like this  </p>
+<pre><code class="powershell">function test1 {
+    $a = 1
+    $a
+    return $False
+}
 </code></pre>
 
-<p>It will be published on
-<a href="https://tanalex.github.io/tech_notes/">https://tanalex.github.io/tech_notes/</a></p>
+<p>This function will never <code>return $False</code> because the $a will be part of the return value</p>
+<h2 id="suppress-output-by-out-null">Suppress output by Out-Null</h2>
+<p>When you run a function, it will by default print out the return value</p>
+<pre><code class="Powershell">Invoke-Express &quot;blah_function $args&quot; | Out-Null
+</code></pre>
+
+<p>Or in the function you don't want to print out, assign to a dummy variable</p>
+<pre><code class="powershell">$dummy =  $myString -match &quot;(.*).json&quot;
+$fileName = $Matches[1]
+</code></pre>
               
             </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="Powershell/" class="btn btn-neutral float-right" title="Powershell Note">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-    </div>
   
 
   <hr/>
@@ -187,18 +168,11 @@ mkdocs gh-deploy
       
       
       
-        <span style="margin-left: 15px"><a href="Powershell/" style="color: #fcfcfc">Next &raquo;</a></span>
-      
     </span>
 </div>
-    <script>var base_url = '.';</script>
-    <script src="js/theme.js" defer></script>
-      <script src="search/main.js" defer></script>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
 
 </body>
 </html>
-
-<!--
-MkDocs version : 1.0.4
-Build Date UTC : 2019-04-28 01:32:10
--->
