@@ -153,13 +153,18 @@
 
 <h2 id="parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</h2>
 <p><strong>Notable points:</strong></p>
+<p><a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-6">Reference</a></p>
 <ul>
 <li>DefaultParameterSetName</li>
 <li>[Parameter(Mandatory = $false, Position=0,  ParameterSetName='repo')]</li>
+<li>Use [string[]] to indicate it's a string array @()</li>
 <li>[ValidatePattern('^*$|^none$|^.+$')]</li>
 <li>[ValidateSet('open', 'closed')]</li>
-<li>Use [string[]] to indicate it's a string array @()</li>
 <li>[AllowNull()]</li>
+<li>[ValidateNotNull()]</li>
+<li>[ValidateRange(0,10)]</li>
+<li>[ValidateRange("Positive")]</li>
+<li>[ValidateScript({$_ -ge (Get-Date)})] [DateTime]$EventDate</li>
 </ul>
 <pre><code class="Powershell">function Get-GitHubIssues
 {

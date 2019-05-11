@@ -78,6 +78,8 @@
     
         <ul>
         
+            <li><a class="toctree-l4" href="#disablesupress-output-from-function-return">Disable/Supress output from function return</a></li>
+        
             <li><a class="toctree-l4" href="#select-string">Select-String</a></li>
         
             <li><a class="toctree-l4" href="#convert-between-secure-password-and-plain-password">Convert between Secure Password and Plain Password</a></li>
@@ -101,6 +103,10 @@
             <li><a class="toctree-l4" href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
         
             <li><a class="toctree-l4" href="#environment-variables">Environment variables</a></li>
+        
+            <li><a class="toctree-l4" href="#convert-from-hashtable-to-query-string">Convert From Hashtable To Query String</a></li>
+        
+            <li><a class="toctree-l4" href="#get-lines-and-words-counts-in-a-sub-dir-using-foreach-begin-process-end">Get lines and Words counts in a sub-dir using Foreach -Begin -Process -End</a></li>
         
         </ul>
     
@@ -161,6 +167,7 @@
 
 <ul>
 <li><a href="#common-ps-snippets">Common PS Snippets</a><ul>
+<li><a href="#disablesupress-output-from-function-return">Disable/Supress output from function return</a></li>
 <li><a href="#select-string">Select-String</a></li>
 <li><a href="#convert-between-secure-password-and-plain-password">Convert between Secure Password and Plain Password</a></li>
 <li><a href="#write-debug-write-verbose-write-error-and-out-string-out-null">Write-Debug, Write-Verbose, Write-Error and Out-String, Out-Null</a></li>
@@ -173,10 +180,18 @@
 <li><a href="#detect-64bit-or-32bit-then-add-dll">Detect 64bit or 32bit then add DLL</a></li>
 <li><a href="#use-slect-select-object-to-add-a-new-property">Use slect (select-object) to add a new property</a></li>
 <li><a href="#environment-variables">Environment variables</a></li>
+<li><a href="#convert-from-hashtable-to-query-string">Convert From Hashtable To Query String</a></li>
 </ul>
 </li>
 </ul>
 <!-- /TOC -->
+
+<h2 id="disablesupress-output-from-function-return">Disable/Supress output from function return</h2>
+<p>Use these ways to avoid print the result after calling a function which returns value</p>
+<pre><code class="powershell">[viod]call_function
+$null = call_function
+call_function  | Out-Null
+</code></pre>
 
 <h2 id="select-string">Select-String</h2>
 <p>Perform a case sensitive matching of literal strings:</p>
@@ -506,6 +521,66 @@ The possible values for the second argument in GetEnvironmentVariable are: &quot
 <p>Create, Set</p>
 <pre><code># creates “myY” of category “User”, and set the value to “&quot;la la&quot;”
 [Environment]::SetEnvironmentVariable(&quot;myY&quot;, &quot;la la&quot;, &quot;User&quot;)
+</code></pre>
+
+<h2 id="convert-from-hashtable-to-query-string">Convert From Hashtable To Query String</h2>
+<pre><code class="powershell">function ConvertFrom-HashtableToQueryString {
+    &lt;#
+    .SYNOPSIS
+      Convert a hashtable into a query string
+
+    .DESCRIPTION
+      Converts a hashtable into a query string by joining the keys to the values,
+      and then joining all the pairs together
+
+    .PARAMETER values
+      The hashtable to convert
+
+    .PARAMETER PairSeparator
+      The string used to concatenate the sets of key=value pairs, defaults to &quot;&amp;&quot;
+
+    .PARAMETER KeyValueSeparator
+      The string used to concatenate the keys to the values, defaults to &quot;=&quot;
+
+    .RETURNVALUE
+      The query string created by joining keys to values and then joining
+      them all together into a single string
+
+    .EXAMPLE
+           ConvertFrom-HashTable -Values @{
+                name = 'abcdefg-1'
+                apiProduct = 'Product1'
+                keyExpiresIn = 86400000
+            }
+    #&gt;
+
+PARAM(
+   [Hashtable] $Values,
+   [String] $pairSeparator = '&amp;',  
+   [String] $KeyValueSeparator = '=',
+   [string[]]$Sort
+)
+PROCESS {
+   [string]::join($pairSeparator, @(
+      if($Sort) {
+         foreach( $kv in $Values.GetEnumerator() | Sort $Sort) {
+            if($kv.Name) {
+               '{0}{1}{2}' -f $kv.Name, $KeyValueSeparator, $kv.Value
+            }
+         }
+      } else {
+         foreach( $kv in $Values.GetEnumerator()) {
+            if($kv.Name) {
+               '{0}{1}{2}' -f $kv.Name, $KeyValueSeparator, $kv.Value
+            }
+         }
+      }
+   ))
+}}
+</code></pre>
+
+<h2 id="get-lines-and-words-counts-in-a-sub-dir-using-foreach-begin-process-end">Get lines and Words counts in a sub-dir using Foreach -Begin -Process -End</h2>
+<pre><code class="powershell"> ls -File -Recurse | % -Begin {$mesure = @{&quot;Lines&quot;=0; &quot;Words&quot;=0}} -Process { $m = gc $_.FullName | Measure-Object -Line -Word; $mesure[&quot;Lines&quot;]+=$m.Lines; $mesure[&quot;Words&quot;]+=$m.Words } -End { $mesure }
 </code></pre>
               
             </div>

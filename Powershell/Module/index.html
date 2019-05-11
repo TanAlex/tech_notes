@@ -70,6 +70,8 @@
     
         <ul>
         
+            <li><a class="toctree-l4" href="#load-module-using-argumentlist">Load module using ArgumentList</a></li>
+        
             <li><a class="toctree-l4" href="#use-set-alias-to-link-function-in-module-to-a-script">Use Set-Alias to link function in module to a script</a></li>
         
             <li><a class="toctree-l4" href="#import-all-function-scripts-in-a-folder">Import all function scripts in a folder</a></li>
@@ -139,6 +141,20 @@
             <div class="section">
               
                 <h1 id="ps-modules">PS Modules</h1>
+<h2 id="load-module-using-argumentlist">Load module using ArgumentList</h2>
+<p>You can use the <code>–ArgumentList</code> parameter of the import-module cmdlet to pass arguments when loading a module.</p>
+<p>You should use a param block in your module to define your parameters:</p>
+<pre><code>param(
+    [parameter(Position=0,Mandatory=$false)][boolean]$BeQuiet=$true,
+    [parameter(Position=1,Mandatory=$false)][string]$URL  
+)
+</code></pre>
+
+<p>Then call the import-module cmdlet like this:</p>
+<pre><code>import-module .\myModule.psm1 -ArgumentList $True,'http://www.microsoft.com'
+</code></pre>
+
+<p>As may have already noticed, you can only supply values (no names) to –ArgumentList. So you should define you parameters carefully with the position argument.</p>
 <h2 id="use-set-alias-to-link-function-in-module-to-a-script">Use Set-Alias to link function in module to a script</h2>
 <p>Typically, functions are in the psm1 file but you can write in regular script files<br />
 then use Set-Alias to link them in the psm1 module file</p>

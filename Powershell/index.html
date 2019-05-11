@@ -66,6 +66,8 @@
     
         <ul>
         
+            <li><a class="toctree-l4" href="#quick-note">Quick note</a></li>
+        
             <li><a class="toctree-l4" href="#awsome-powershell-and-other-useful-sites">Awsome Powershell and other useful sites</a></li>
         
             <li><a class="toctree-l4" href="#powershell-modules-note">Powershell Modules Note</a></li>
@@ -143,6 +145,7 @@
 
 <ul>
 <li><a href="#powershell-note">Powershell Note</a><ul>
+<li><a href="#quick-note">Quick note</a></li>
 <li><a href="#awsome-powershell-and-other-useful-sites">Awsome Powershell and other useful sites</a></li>
 <li><a href="#powershell-modules-notemodulemd">[Powershell Modules Note](Module.md)</a></li>
 <li><a href="#powershell-functionsfunctionsmd">[Powershell Functions](Functions.md)</a></li>
@@ -151,6 +154,17 @@
 </ul>
 <!-- /TOC -->
 
+<h2 id="quick-note">Quick note</h2>
+<p>Write-Debug won't print out anything unless you set</p>
+<pre><code>$DebugPreference = &quot;Continue&quot;
+</code></pre>
+
+<p>That will cause all Write-Debug to print </p>
+<p>To set it back to defualt</p>
+<pre><code>$DebugPreference = SilentlyContinue
+</code></pre>
+
+<p>Will stop printing Write-Debug again</p>
 <h2 id="awsome-powershell-and-other-useful-sites">Awsome Powershell and other useful sites</h2>
 <ul>
 <li><a href="https://github.com/janikvonrotz/awesome-powershell">Awsome Powershell</a></li>
