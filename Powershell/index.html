@@ -68,11 +68,11 @@
         
             <li><a class="toctree-l4" href="#quick-note">Quick note</a></li>
         
+            <li><a class="toctree-l4" href="#path-of-running-script">Path of running script</a></li>
+        
+            <li><a class="toctree-l4" href="#get-full-path-from-absolute-or-relative-path">Get full path from absolute or relative path</a></li>
+        
             <li><a class="toctree-l4" href="#awsome-powershell-and-other-useful-sites">Awsome Powershell and other useful sites</a></li>
-        
-            <li><a class="toctree-l4" href="#powershell-modules-note">Powershell Modules Note</a></li>
-        
-            <li><a class="toctree-l4" href="#powershell-functions">Powershell Functions</a></li>
         
         </ul>
     
@@ -90,6 +90,10 @@
                 <li class="">
                     
     <a class="" href="Snippets/">PS Snippets</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="Utility/">PS Utility Note</a>
                 </li>
     </ul>
 	    </li>
@@ -146,9 +150,9 @@
 <ul>
 <li><a href="#powershell-note">Powershell Note</a><ul>
 <li><a href="#quick-note">Quick note</a></li>
+<li><a href="#path-of-running-script">Path of running script</a></li>
+<li><a href="#get-full-path-from-absolute-or-relative-path">Get full path from absolute or relative path</a></li>
 <li><a href="#awsome-powershell-and-other-useful-sites">Awsome Powershell and other useful sites</a></li>
-<li><a href="#powershell-modules-notemodulemd">[Powershell Modules Note](Module.md)</a></li>
-<li><a href="#powershell-functionsfunctionsmd">[Powershell Functions](Functions.md)</a></li>
 </ul>
 </li>
 </ul>
@@ -165,13 +169,43 @@
 </code></pre>
 
 <p>Will stop printing Write-Debug again</p>
+<h2 id="path-of-running-script">Path of running script</h2>
+<p><strong>PowerShell 3+</strong></p>
+<p>The path of a running scripts is:</p>
+<pre><code>$PSCommandPath
+</code></pre>
+
+<p>Its directory is:</p>
+<pre><code>$PSScriptRoot
+</code></pre>
+
+<p><strong>PowerShell 2</strong></p>
+<p>The path of a running scripts is:</p>
+<pre><code>$MyInvocation.MyCommand.Path
+</code></pre>
+
+<p>Its directory is:</p>
+<pre><code>$PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
+</code></pre>
+
+<h2 id="get-full-path-from-absolute-or-relative-path">Get full path from absolute or relative path</h2>
+<pre><code>resolve-path &quot;c:\temp\.\PIPELINE\..\PIPELINE\Configs&quot;
+Path
+----
+C:\temp\PIPELINE\Configs
+
+
+PS C:\temp\PIPELINE&gt; resolve-path &quot;Configs&quot;
+Path
+----
+C:\temp\PIPELINE\Configs
+</code></pre>
+
 <h2 id="awsome-powershell-and-other-useful-sites">Awsome Powershell and other useful sites</h2>
 <ul>
 <li><a href="https://github.com/janikvonrotz/awesome-powershell">Awsome Powershell</a></li>
 <li><a href="https://github.com/PowerShell/platyPS">PlatyPS generate module help in Markdown</a></li>
 </ul>
-<h2 id="powershell-modules-note"><a href="Module/">Powershell Modules Note</a></h2>
-<h2 id="powershell-functions"><a href="Functions/">Powershell Functions</a></h2>
               
             </div>
           </div>

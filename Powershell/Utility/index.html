@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>CSS Quick Notes - Tech Notes</title>
+  <title>PS Utility Note - Tech Notes</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "CSS Quick Notes";
-    var mkdocs_page_input_path = "CSS\\QuickNotes.md";
+    var mkdocs_page_name = "PS Utility Note";
+    var mkdocs_page_input_path = "Powershell\\Utility.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -59,23 +59,29 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../Powershell/">Powershell Note</a>
+    <a class="" href="../">Powershell Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../Powershell/Module/">PS Modules Note</a>
+    <a class="" href="../Module/">PS Modules Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../Powershell/Functions/">PS Functions Note</a>
+    <a class="" href="../Functions/">PS Functions Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../../Powershell/Snippets/">PS Snippets</a>
+    <a class="" href="../Snippets/">PS Snippets</a>
                 </li>
-                <li class="">
+                <li class=" current">
                     
-    <a class="" href="../../Powershell/Utility/">PS Utility Note</a>
+    <a class="current" href="./">PS Utility Note</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#utility-snippet">Utility snippet</a></li>
+    
+
+    </ul>
                 </li>
     </ul>
 	    </li>
@@ -111,8 +117,12 @@
     <li><a href="../..">Docs</a> &raquo;</li>
     
       
+        
+          <li>Powershell &raquo;</li>
+        
+      
     
-    <li>CSS Quick Notes</li>
+    <li>PS Utility Note</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -122,71 +132,73 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="css-quick-notes">CSS Quick Notes</h1>
-<h2 id="reactive-container-sit-in-the-mid-of-the-row">Reactive Container sit in the mid of the row</h2>
-<pre><code class="css">@media (min-width: 1200px)
-.container {
-    max-width: 1140px;
-}
-@media (min-width: 992px)
-.container {
-    max-width: 960px;
+                <h2 id="utility-snippet">Utility snippet</h2>
+<pre><code class="powershell">function Write-InfoLog($content) {
+    Write-Host &quot;$(Get-Date -Format {yyyy-MM-dd hh:mm:ss.fff}) | INFO | $content&quot; -foregroundcolor &quot;Green&quot;
 }
 
-@media (min-width: 768px)
-.container {
-    max-width: 720px;
+function Write-DebugLog($content) {
+    Write-Debug &quot;$(Get-Date -Format {yyyy-MM-dd hh:mm:ss.fff}) | DEBUG | $content&quot; 
 }
-@media (min-width: 576px)
-.container {
-    max-width: 540px;
-}
-.container {
-    width: 100%;
-    margin-right: auto;
-    margin-left: auto;
-}
-</code></pre>
 
-<h2 id="simple-a-using-button-class">Simple &lt;a  using .button class</h2>
-<pre><code class="css">.button, button[type=submit], header+.section_wrapper .section_nav_wrapper ul li.free-trial a {
-    padding: 0 20px;
-    background-color: #63db2a;
-    text-align: center;
-    font-family: &quot;Open Sans&quot;,Sans-Serif;
-    color: #fff;
-    display: inline-block;
-    border-radius: 6px;
-    font-size: 16px;
-    line-height: 42px;
-    transition: all .3s ease-in-out;
-    min-width: 130px;
-    height: 42px;
-}
-</code></pre>
+function Invoke-ExternalProgram($program, $arguments, $workingDir) {
+    $command = &quot;[${program} ${arguments}]&quot;
+    Write-InfoLog &quot;running external program ${command}&quot;
 
-<h2 id="align-img-to-center">Align &lt;img to center</h2>
-<pre><code class="css">img {
-    align-self: center;
+    $process = Start-Process $program -wait -NoNewWindow -PassThru -ArgumentList $arguments -WorkingDirectory $workingDir
+    if ($process.ExitCode -ne 0) {
+        throw &quot;error while running external program ${command}&quot;
+    }
 }
-.align-middle {
-    vertical-align: middle!important;
-}
-img {
-    max-width: 100%;
-    height: auto;
-}
-</code></pre>
 
-<p>Usage:</p>
-<pre><code class="html">&lt;div class=&quot;col-12 col-md-6 d-flex justify-content-center&quot;&gt;
-    &lt;img src=&quot;Band1.svg?ext=.svg&quot; alt=&quot;API Documentation&quot; class=&quot;align-middle&quot;&gt;
-&lt;/div&gt;
+function Invoke-Replace($file, $target, $value) {
+    (Get-Content $file).replace($target, $value) | Set-Content $file
+}
+
+function New-Directory($path) {
+    if (Test-Path $path) {
+        Remove-item -Path $path -Recurse | Out-Null
+    }
+    New-Item -Path $path -ItemType directory | Out-Null
+}
+
+function New-File($directory, $name, $value) {
+    New-Item -Force -Path $directory -Name $name -ItemType file -Value $value | Out-Null
+}
+
+function Get-Directories($dirPath) {
+    return $dirPath.Split(&quot;/&quot;)
+}
+
+function Get-RelativePath($target, $base) {
+    if ($base -eq $null) {
+        return Get-Item $target | Resolve-Path -Relative
+    } else {
+        $current = Get-Location
+        Set-Location $base
+        $relativePath = Get-Item $target | Resolve-Path -Relative
+        Set-Location $current
+        return $relativePath
+    }
+}
+
+function Get-Json($path) {
+    return (Get-Content -Raw -Path $path | ConvertFrom-Json)
+}
 </code></pre>
               
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../DockerSwarm/" class="btn btn-neutral float-right" title="DockerSwarm">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../Snippets/" class="btn btn-neutral" title="PS Snippets"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -210,6 +222,10 @@ img {
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="../Snippets/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../../DockerSwarm/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
