@@ -18,7 +18,7 @@
   <script>
     // Current page data
     var mkdocs_page_name = "PS Modules Note";
-    var mkdocs_page_input_path = "Powershell\\Module.md";
+    var mkdocs_page_input_path = "Powershell/Module.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -70,8 +70,6 @@
     
         <ul>
         
-            <li><a class="toctree-l4" href="#load-module-using-argumentlist">Load module using ArgumentList</a></li>
-        
             <li><a class="toctree-l4" href="#use-set-alias-to-link-function-in-module-to-a-script">Use Set-Alias to link function in module to a script</a></li>
         
             <li><a class="toctree-l4" href="#import-all-function-scripts-in-a-folder">Import all function scripts in a folder</a></li>
@@ -87,14 +85,6 @@
                     
     <a class="" href="../Functions/">PS Functions Note</a>
                 </li>
-                <li class="">
-                    
-    <a class="" href="../Snippets/">PS Snippets</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../Utility/">PS Utility Note</a>
-                </li>
     </ul>
 	    </li>
           
@@ -106,6 +96,11 @@
             <li class="toctree-l1">
 		
     <a class="" href="../../Kubernetes/KubernetesNotes/">Kubernetes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Sites/READEME.md">Interesting Site</a>
 	    </li>
           
         </ul>
@@ -145,20 +140,6 @@
             <div class="section">
               
                 <h1 id="ps-modules">PS Modules</h1>
-<h2 id="load-module-using-argumentlist">Load module using ArgumentList</h2>
-<p>You can use the <code>–ArgumentList</code> parameter of the import-module cmdlet to pass arguments when loading a module.</p>
-<p>You should use a param block in your module to define your parameters:</p>
-<pre><code>param(
-    [parameter(Position=0,Mandatory=$false)][boolean]$BeQuiet=$true,
-    [parameter(Position=1,Mandatory=$false)][string]$URL  
-)
-</code></pre>
-
-<p>Then call the import-module cmdlet like this:</p>
-<pre><code>import-module .\myModule.psm1 -ArgumentList $True,'http://www.microsoft.com'
-</code></pre>
-
-<p>As may have already noticed, you can only supply values (no names) to –ArgumentList. So you should define you parameters carefully with the position argument.</p>
 <h2 id="use-set-alias-to-link-function-in-module-to-a-script">Use Set-Alias to link function in module to a script</h2>
 <p>Typically, functions are in the psm1 file but you can write in regular script files<br />
 then use Set-Alias to link them in the psm1 module file</p>
@@ -208,28 +189,6 @@ Export-ModuleMember -Function $Public.Basename -Variable _PSSlackColorMap
 
 <p>Export using wild-cards</p>
 <pre><code class="Powershell">Export-ModuleMember -Function 'Get-*'
-</code></pre>
-
-<p>Powershell will auto convert array to string with comma</p>
-<pre><code class="powershell">Export-ModuleMember -Function  @($Public + $Private))
-
-Export-ModuleMember -Function  New-GitHubOAuthToken, New-GitHubPullRequest,
-  Get-GitHubIssues, Get-GitHubEvents, Get-GitHubRepositories, ... ...
-</code></pre>
-
-<h3 id="check-if-the-script-is-called-by-dot-source-or-by-module-psm1">Check if the script is called by Dot Source or by Module (psm1)</h3>
-<pre><code class="Powershell"># if it's not dot sourced, call the function
-# Note: $args is an array, in order to pass them to function
-#       need to convert that array to a space separated string
-if ( $MyInvocation.InvocationName -ne '.' -AND $MyInvocation.Line -ne '' ){
-    $new_args = $args[1..$($args.Length-1)] -join &quot; &quot;
-    Invoke-Expression &quot;Okto-Login $new_args&quot;
-}
-
-#Check if it's called by psm1 module
-if ($MyInvocation.MyCommand.Name.EndsWith('.psm1')){
-     Export-ModuleMember -Function &quot;Set-Okto-Login&quot;
-}
 </code></pre>
               
             </div>

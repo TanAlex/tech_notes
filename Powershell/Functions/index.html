@@ -18,7 +18,7 @@
   <script>
     // Current page data
     var mkdocs_page_name = "PS Functions Note";
-    var mkdocs_page_input_path = "Powershell\\Functions.md";
+    var mkdocs_page_input_path = "Powershell/Functions.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -76,22 +76,12 @@
         
             <li><a class="toctree-l4" href="#parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</a></li>
         
-            <li><a class="toctree-l4" href="#use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</a></li>
-        
-            <li><a class="toctree-l4" href="#function-help-doc-string">Function help doc string</a></li>
+            <li><a class="toctree-l4" href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
         
         </ul>
     
 
     </ul>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../Snippets/">PS Snippets</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../Utility/">PS Utility Note</a>
                 </li>
     </ul>
 	    </li>
@@ -104,6 +94,11 @@
             <li class="toctree-l1">
 		
     <a class="" href="../../Kubernetes/KubernetesNotes/">Kubernetes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Sites/READEME.md">Interesting Site</a>
 	    </li>
           
         </ul>
@@ -148,8 +143,7 @@
 <ul>
 <li><a href="#powershell-functions-notes">Powershell functions notes</a><ul>
 <li><a href="#parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</a></li>
-<li><a href="#use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</a></li>
-<li><a href="#function-help-doc-string">Function help doc string</a></li>
+<li><a href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
 </ul>
 </li>
 </ul>
@@ -157,18 +151,11 @@
 
 <h2 id="parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</h2>
 <p><strong>Notable points:</strong></p>
-<p><a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-6">Reference</a></p>
 <ul>
 <li>DefaultParameterSetName</li>
 <li>[Parameter(Mandatory = $false, Position=0,  ParameterSetName='repo')]</li>
-<li>Use [string[]] to indicate it's a string array @()</li>
 <li>[ValidatePattern('^*$|^none$|^.+$')]</li>
 <li>[ValidateSet('open', 'closed')]</li>
-<li>[AllowNull()]</li>
-<li>[ValidateNotNull()]</li>
-<li>[ValidateRange(0,10)]</li>
-<li>[ValidateRange("Positive")]</li>
-<li>[ValidateScript({$_ -ge (Get-Date)})] [DateTime]$EventDate</li>
 </ul>
 <pre><code class="Powershell">function Get-GitHubIssues
 {
@@ -224,105 +211,51 @@
 
     [Parameter(Mandatory = $false)]
     [DateTime]
-    [AllowNull()]
     #Optional string of a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
     $Since
   )
 </code></pre>
 
-<h2 id="use-helpmessage-alias-valuefrompipelinebypropertyname-valuefromremainingarguments">Use HelpMessage, Alias, ValueFromPipelineByPropertyName, ValueFromRemainingArguments</h2>
-<p><strong> Note </strong></p>
-<ul>
-<li>[Alias( 'Instance', 'Instances', 'ServerInstance')]</li>
-<li>[ValidateNotNullOrEmpty()]</li>
-<li>[Switch]</li>
-<li>[OutputType([System.Data.SQLite.SQLiteConnection])]</li>
-</ul>
-<pre><code class="Powershell">    [cmdletbinding()]
-    [OutputType([System.Data.SQLite.SQLiteConnection])]
-    param(
-        [Parameter( Position=0,
-                    Mandatory=$true,
-                    ValueFromPipeline=$true,
-                    ValueFromPipelineByPropertyName=$true,
-                    ValueFromRemainingArguments=$false,
-                    HelpMessage='SQL Server Instance required...' )]
-        [Alias( 'Instance', 'Instances', 'ServerInstance', 'Server', 'Servers','cn','Path','File','FullName','Database' )]
-        [ValidateNotNullOrEmpty()]
-        [string[]]
-        $DataSource,
-
-        [Parameter( Position=2,
-                    Mandatory=$false,
-                    ValueFromPipelineByPropertyName=$true,
-                    ValueFromRemainingArguments=$false )]
-        [System.Security.SecureString]
-        $Password,
-
-        [Parameter( Position=3,
-                    Mandatory=$false,
-                    ValueFromPipelineByPropertyName=$true,
-                    ValueFromRemainingArguments=$false )]
-        [Switch]
-        $ReadOnly,
-
-        [Parameter( Position=4,
-                    Mandatory=$false,
-                    ValueFromPipelineByPropertyName=$true,
-                    ValueFromRemainingArguments=$false )]
-        [bool]
-        $Open = $True
-    )
-</code></pre>
-
-<h2 id="function-help-doc-string">Function help doc string</h2>
-<pre><code class="Powershell">function Out-DataTable
+<h2 id="use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</h2>
+<p>it's using basic auth, use <code>GetBytes</code> to convert string to bytes
+then use <code>ToBase64String</code> to convert them to base64 string</p>
+<pre><code class="Powershell">function Get-GitHubOAuthTokens
 {
-&lt;#
-.SYNOPSIS
-    Creates a DataTable for an object
-.DESCRIPTION
-    Creates a DataTable based on an object's properties.
-.PARAMETER InputObject
-    One or more objects to convert into a DataTable
-.PARAMETER NonNullable
-    A list of columns to set disable AllowDBNull on
-.INPUTS
-    Object
-        Any object can be piped to Out-DataTable
-.OUTPUTS
-   System.Data.DataTable
-.EXAMPLE
-    $dt = Get-psdrive | Out-DataTable
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]
+    $UserName,
 
-    # This example creates a DataTable from the properties of Get-psdrive and assigns output to $dt variable
-.EXAMPLE
-    Get-Process | Select Name, CPU | Out-DataTable | Invoke-SQLBulkCopy -ServerInstance $SQLInstance -Database $Database -Table $SQLTable -force -verbose
-    # Get a list of processes and their CPU, create a datatable, bulk import that data
-.NOTES
-    Adapted from script by Marc van Orsouw and function from Chad Miller
-    Version History
-    v1.0  - Chad Miller - Initial Release
-    v1.1  - Chad Miller - Fixed Issue with Properties
-    v1.2  - Chad Miller - Added setting column datatype by property as suggested by emp0
-    v1.3  - Chad Miller - Corrected issue with setting datatype on empty properties
-    v1.4  - Chad Miller - Corrected issue with DBNull
-    v1.5  - Chad Miller - Updated example
-    v1.6  - Chad Miller - Added column datatype logic with default to string
-    v1.7  - Chad Miller - Fixed issue with IsArray
-    v1.8  - ramblingcookiemonster - Removed if($Value) logic.  This would not catch empty strings, zero, $false and other non-null items
-                                  - Added perhaps pointless error handling
-.LINK
-    https://github.com/RamblingCookieMonster/PowerShell
-.LINK
-    Invoke-SQLBulkCopy
-.LINK
-    Invoke-Sqlcmd2
-.LINK
-    New-SQLConnection
-.FUNCTIONALITY
-    SQL
-#&gt;
+    [Parameter(Mandatory = $true)]
+    [string]
+    $Password
+  )
+
+  try
+  {
+    $params = @{
+      Uri = 'https://api.github.com/authorizations';
+      Headers = @{
+        Authorization = 'Basic ' + [Convert]::ToBase64String(
+          [Text.Encoding]::ASCII.GetBytes(&quot;$($userName):$($password)&quot;));
+      }
+    }
+    $global:GITHUB_API_OUTPUT = Invoke-RestMethod @params
+    #Write-Verbose $global:GITHUB_API_OUTPUT
+
+    $global:GITHUB_API_OUTPUT |
+      % {
+        $date = [DateTime]::Parse($_.created_at).ToString('g')
+        Write-Host &quot;`n$($_.app.name) - Created $date&quot;
+        Write-Host &quot;`t$($_.token)`n`t$($_.app.url)&quot;
+      }
+  }
+  catch
+  {
+    Write-Error &quot;An unexpected error occurred (bad user/password?) $($Error[0])&quot;
+  }
+}
 </code></pre>
               
             </div>
@@ -331,7 +264,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../Snippets/" class="btn btn-neutral float-right" title="PS Snippets">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../DockerSwarm/" class="btn btn-neutral float-right" title="DockerSwarm">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../Module/" class="btn btn-neutral" title="PS Modules Note"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -363,7 +296,7 @@
         <span><a href="../Module/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../Snippets/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../DockerSwarm/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
