@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../../img/favicon.ico">
+  <title>AWS - Tech Notes</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "AWS";
+    var mkdocs_page_input_path = "AWS/CloudFormation.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../../js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../.." class="icon icon-home"> Tech Notes</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">Powershell</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="../../Powershell/">Powershell Note</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Powershell/Module/">PS Modules Note</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="../../Powershell/Functions/">PS Functions Note</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../DockerSwarm/">DockerSwarm</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Kubernetes/KubernetesNotes/">Kubernetes</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../../Sites/">Sites</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">AWS</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#cloudformation-note">CloudFormation note</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#basic-structure">Basic structure</a></li>
+        
+            <li><a class="toctree-l3" href="#the-fngetatt-function">The Fn::GetAtt function</a></li>
+        
+            <li><a class="toctree-l3" href="#use-the-fnfindinmap-function">use the Fn::FindInMap function</a></li>
+        
+            <li><a class="toctree-l3" href="#join-function-and-outputs">!Join function and outputs</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../..">Tech Notes</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>AWS</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="cloudformation-note">CloudFormation note</h1>
+<p>https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/gettingstarted.templatebasics.html</p>
+<p>A tutorial guide:<br />
+https://medium.com/boltops/a-simple-introduction-to-aws-cloudformation-part-1-1694a41ae59d</p>
+<h3 id="basic-structure">Basic structure</h3>
+<ul>
+<li>Resources</li>
+<li>Type</li>
+<li>Properties</li>
+<li>Functions<ul>
+<li>!Ref</li>
+</ul>
+</li>
+</ul>
+<pre><code class="yml">Resources:
+  Ec2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      KeyName: mykey
+      ImageId: ''
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+</code></pre>
+
+<ul>
+<li>Parameters</li>
+</ul>
+<pre><code class="yml">Parameters:
+  KeyName:
+    Description: The EC2 Key Pair to allow SSH access to the instance
+    Type: 'AWS::EC2::KeyPair::KeyName'
+Resources:
+  Ec2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+        - MyExistingSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: ami-7a11e213
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+</code></pre>
+
+<p>Get parameters like Ansible var_prompt</p>
+<pre><code class="yml">Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access into the WordPress web server
+    Type: AWS::EC2::KeyPair::KeyName
+  WordPressUser:
+    Default: admin
+    NoEcho: true
+    Description: The WordPress database admin account user name
+    Type: String
+    MinLength: 1
+    MaxLength: 16
+    AllowedPattern: &quot;[a-zA-Z][a-zA-Z0-9]*&quot;
+  WebServerPort:
+    Default: 8888
+    Description: TCP/IP port for the WordPress web server
+    Type: Number
+    MinValue: 1
+    MaxValue: 65535
+</code></pre>
+
+<p>Constraints using AllowedValues</p>
+<pre><code class="yml">&quot;Parameters&quot; : {
+
+    &quot;InstanceType&quot; : {
+      &quot;Description&quot; : &quot;WebServer EC2 instance type&quot;,
+      &quot;Type&quot; : &quot;String&quot;,
+      &quot;Default&quot; : &quot;t2.small&quot;,
+      &quot;AllowedValues&quot; : [ 
+        &quot;t1.micro&quot;, 
+        &quot;t2.nano&quot;,
+        ...
+        ...
+      ],
+      &quot;ConstraintDescription&quot; : &quot;must be a valid EC2 instance type.&quot;
+    }
+  },        
+</code></pre>
+
+<h3 id="the-fngetatt-function">The <a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-getatt.html">Fn::GetAtt</a> function</h3>
+<p>takes two parameters, the logical name of the resource and the name of the attribute to be retrieved. For a full list of available attributes for resources, see Fn::GetAtt. You'll notice that the Fn::GetAtt function lists its two parameters in an array. For functions that take multiple parameters, <strong>you use an array to specify their parameters.</strong></p>
+<pre><code class="yml">Resources:
+  myBucket:
+    Type: 'AWS::S3::Bucket'
+  myDistribution:
+    Type: 'AWS::CloudFront::Distribution'
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt 
+              - myBucket
+              - DomainName
+            Id: myS3Origin
+            S3OriginConfig: {}
+        Enabled: 'true'
+        DefaultCacheBehavior:
+          TargetOriginId: myS3Origin
+          ForwardedValues:
+            QueryString: 'false'
+          ViewerProtocolPolicy: allow-all
+</code></pre>
+
+<h3 id="use-the-fnfindinmap-function">use the Fn::FindInMap function</h3>
+<p>passing the name of the map, the value used to find the mapped value, and the label of the mapped value you want to return.</p>
+<pre><code class="yml">Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: String
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-76f0061f
+    us-west-1:
+      AMI: ami-655a0a20
+    eu-west-1:
+      AMI: ami-7fd4e10b
+    ap-southeast-1:
+      AMI: ami-72621c20
+    ap-northeast-1:
+      AMI: ami-8e08a38f
+Resources:
+  Ec2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      KeyName: !Ref KeyName
+      ImageId: !FindInMap 
+        - RegionMap
+        - !Ref 'AWS::Region'
+        - AMI
+      UserData: !Base64 '80'
+</code></pre>
+
+<h3 id="join-function-and-outputs">!Join function and outputs</h3>
+<pre><code class="yml">Outputs:
+  InstallURL:
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - ElasticLoadBalancer
+          - DNSName
+        - /wp-admin/install.php
+    Description: Installation URL of the WordPress website
+  WebsiteURL:
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - ElasticLoadBalancer
+          - DNSName
+</code></pre>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="../../Sites/" class="btn btn-neutral" title="Sites"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../../Sites/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+    </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+
+</body>
+</html>

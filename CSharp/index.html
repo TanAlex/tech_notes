@@ -5,18 +5,25 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="None">
   
-  
-  <link rel="shortcut icon" href="/img/favicon.ico">
-  <title>Tech Notes</title>
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>C# Note - Tech Notes</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
-  <link rel="stylesheet" href="/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="/css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
   
-  <script src="/js/jquery-2.1.1.min.js" defer></script>
-  <script src="/js/modernizr-2.8.3.min.js" defer></script>
+  <script>
+    // Current page data
+    var mkdocs_page_name = "C# Note";
+    var mkdocs_page_input_path = "CSharp/README.md";
+    var mkdocs_page_url = null;
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js" defer></script>
+  <script src="../js/modernizr-2.8.3.min.js" defer></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
   <script>hljs.initHighlightingOnLoad();</script> 
   
@@ -29,9 +36,9 @@
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
       <div class="wy-side-nav-search">
-        <a href="/." class="icon icon-home"> Tech Notes</a>
+        <a href=".." class="icon icon-home"> Tech Notes</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="//search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -43,7 +50,7 @@
           
             <li class="toctree-l1">
 		
-    <a class="" href="/.">Home</a>
+    <a class="" href="..">Home</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -52,37 +59,37 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="/Powershell/">Powershell Note</a>
+    <a class="" href="../Powershell/">Powershell Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/Powershell/Module/">PS Modules Note</a>
+    <a class="" href="../Powershell/Module/">PS Modules Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="/Powershell/Functions/">PS Functions Note</a>
+    <a class="" href="../Powershell/Functions/">PS Functions Note</a>
                 </li>
     </ul>
 	    </li>
           
             <li class="toctree-l1">
 		
-    <a class="" href="/DockerSwarm/">DockerSwarm</a>
+    <a class="" href="../DockerSwarm/">DockerSwarm</a>
 	    </li>
           
             <li class="toctree-l1">
 		
-    <a class="" href="/Kubernetes/KubernetesNotes/">Kubernetes</a>
+    <a class="" href="../Kubernetes/KubernetesNotes/">Kubernetes</a>
 	    </li>
           
             <li class="toctree-l1">
 		
-    <a class="" href="/Sites/">Sites</a>
+    <a class="" href="../Sites/">Sites</a>
 	    </li>
           
             <li class="toctree-l1">
 		
-    <a class="" href="/AWS/CloudFormation/">AWS</a>
+    <a class="" href="../AWS/CloudFormation/">AWS</a>
 	    </li>
           
         </ul>
@@ -95,7 +102,7 @@
       
       <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
         <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-        <a href="/.">Tech Notes</a>
+        <a href="..">Tech Notes</a>
       </nav>
 
       
@@ -103,9 +110,11 @@
         <div class="rst-content">
           <div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="/.">Docs</a> &raquo;</li>
+    <li><a href="..">Docs</a> &raquo;</li>
     
+      
     
+    <li>C# Note</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -115,12 +124,38 @@
           <div role="main">
             <div class="section">
               
+                <h1 id="c-note">C# Note</h1>
+<h2 id="flagged-enum">Flagged enum</h2>
+<pre><code class="csharp">[Flags]
+public enum Tag {
+  None   =0x0,
+  Tip    =0x1,
+  Example=0x2
+}
 
-  <h1 id="404-page-not-found">404</h1>
+snippet.Tag = Tag.Tip | Tag.Example
+</code></pre>
 
-  <p><strong>Page not found</strong></p>
-
-
+<h2 id="cast-vs-as">Cast vs As</h2>
+<table>
+<thead>
+<tr>
+<th>CAST</th>
+<th align="left">DESCRIPTION</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tree tree = (Tree)obj</td>
+<td align="left">Use this when you expect that obj will only ever be of type Tree. If obj is not a Tree, an InvalidCast exception will be raised.</td>
+</tr>
+<tr>
+<td>Tree tree = obj as Tree</td>
+<td align="left">Use this when you anticipate that obj may or may not be a Tree. <strong>If obj is not a Tree, a null value will be assigned to tree.</strong> Always follow an “as” cast with conditional logic to properly handle the case where null is returned. Only use this style of conversion when necessary, since it necessitates conditional handling of the return value. This extra code creates opportunities for more bugs and makes the code more difficult to read and debug.</td>
+</tr>
+</tbody>
+</table>
+              
             </div>
           </div>
           <footer>
@@ -150,9 +185,14 @@
       
     </span>
 </div>
-    <script>var base_url = '/';</script>
-    <script src="/js/theme.js" defer></script>
-      <script src="/search/main.js" defer></script>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js" defer></script>
+      <script src="../search/main.js" defer></script>
 
 </body>
 </html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2019-06-16 18:50:09
+-->
