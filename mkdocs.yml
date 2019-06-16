@@ -8,4 +8,6 @@ nav:
       - 'PS Functions Note': Powershell/Functions.md
     - DockerSwarm: DockerSwarm/README.md
     - Kubernetes: Kubernetes/KubernetesNotes.md
+    - Sites: Sites/README.md
+    - AWS: AWS/CloudFormation.md
 theme: readthedocs
