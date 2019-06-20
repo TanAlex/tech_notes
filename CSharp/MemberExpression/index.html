@@ -8,7 +8,7 @@
   
   
   <link rel="shortcut icon" href="../../img/favicon.ico">
-  <title>PS Functions Note - Tech Notes</title>
+  <title>MemberExpression - Tech Notes</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../../css/theme.css" type="text/css" />
@@ -17,8 +17,8 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "PS Functions Note";
-    var mkdocs_page_input_path = "Powershell/Functions.md";
+    var mkdocs_page_name = "MemberExpression";
+    var mkdocs_page_input_path = "CSharp/MemberExpression.md";
     var mkdocs_page_url = null;
   </script>
   
@@ -59,29 +59,15 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../">Powershell Note</a>
+    <a class="" href="../../Powershell/">Powershell Note</a>
                 </li>
                 <li class="">
                     
-    <a class="" href="../Module/">PS Modules Note</a>
+    <a class="" href="../../Powershell/Module/">PS Modules Note</a>
                 </li>
-                <li class=" current">
+                <li class="">
                     
-    <a class="current" href="./">PS Functions Note</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#powershell-functions-notes">Powershell functions notes</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</a></li>
-        
-            <li><a class="toctree-l4" href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
-        
-        </ul>
-    
-
-    </ul>
+    <a class="" href="../../Powershell/Functions/">PS Functions Note</a>
                 </li>
     </ul>
 	    </li>
@@ -102,11 +88,27 @@
     <ul class="subnav">
                 <li class="">
                     
-    <a class="" href="../../CSharp/">Quick Note</a>
+    <a class="" href="../">Quick Note</a>
                 </li>
-                <li class="">
+                <li class=" current">
                     
-    <a class="" href="../../CSharp/MemberExpression/">MemberExpression</a>
+    <a class="current" href="./">MemberExpression</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l3"><a href="#use-memberexpression-and-propertyinfo-to-get-objects-property-to-work-on">Use MemberExpression and PropertyInfo to get object's property to work on</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l4" href="#get-propertys-custom-annotation">Get property's custom annotation</a></li>
+        
+            <li><a class="toctree-l4" href="#use-memberexpression-and-compile-to-get-the-value">Use MemberExpression and Compile to get the value</a></li>
+        
+            <li><a class="toctree-l4" href="#use-getvalue-and-setvalue-on-propertyinfo">Use getValue and setValue on PropertyInfo</a></li>
+        
+        </ul>
+    
+
+    </ul>
                 </li>
     </ul>
 	    </li>
@@ -161,11 +163,11 @@
     
       
         
-          <li>Powershell &raquo;</li>
+          <li>CSharp &raquo;</li>
         
       
     
-    <li>PS Functions Note</li>
+    <li>MemberExpression</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -175,124 +177,72 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="powershell-functions-notes">Powershell functions notes</h1>
-<!-- TOC -->
+                <h1 id="use-memberexpression-and-propertyinfo-to-get-objects-property-to-work-on">Use MemberExpression and PropertyInfo to get object's property to work on</h1>
+<h2 id="get-propertys-custom-annotation">Get property's custom annotation</h2>
+<pre><code class="csharp">using System;
+using System.ComponentModel;
+using System.Linq.Expressions;
 
-<ul>
-<li><a href="#powershell-functions-notes">Powershell functions notes</a><ul>
-<li><a href="#parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</a></li>
-<li><a href="#use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</a></li>
-</ul>
-</li>
-</ul>
-<!-- /TOC -->
-
-<h2 id="parameterset-and-cmdletbinding">ParameterSet and CmdletBinding</h2>
-<p><strong>Notable points:</strong></p>
-<ul>
-<li>DefaultParameterSetName</li>
-<li>[Parameter(Mandatory = $false, Position=0,  ParameterSetName='repo')]</li>
-<li>[ValidatePattern('^*$|^none$|^.+$')]</li>
-<li>[ValidateSet('open', 'closed')]</li>
-</ul>
-<pre><code class="Powershell">function Get-GitHubIssues
+public class Foo
 {
-  [CmdletBinding(DefaultParameterSetName='repo')]
-  param(
-    [Parameter(Mandatory = $false, Position=0,  ParameterSetName='repo')]
-    [string]
-    $Owner = $null,
+    [Description( &quot;The first property.&quot; )]
+    public int property1;
 
-    [Parameter(Mandatory = $false, Position=1, ParameterSetName='repo')]
-    [string]
-    $Repository = $null,
+    [Description( &quot;The second property.&quot; )]
+    public string property2;
+}
 
-    [Parameter(Mandatory = $false, ParameterSetName='user')]
-    [switch]
-    $ForUser,
+class Program
+{
+    static string GetDescription&lt;T&gt;( Expression&lt;Func&lt;T&gt;&gt; expr )
+    {
+        var mexpr = expr.Body as MemberExpression;
+        if( mexpr == null ) return null;
+        if( mexpr.Member == null ) return null;
+        object[] attrs = mexpr.Member.GetCustomAttributes( typeof( DescriptionAttribute ), false );
+        if( attrs == null || attrs.Length == 0 ) return null;
+        DescriptionAttribute desc = attrs[0] as DescriptionAttribute;
+        if( desc == null ) return null;
+        return desc.Description;
+    }
 
-    [Parameter(Mandatory = $false)]
-    [ValidateSet('open', 'closed')]
-    $State = 'open',
-
-    [Parameter(Mandatory = $false, ParameterSetName='user')]
-    [ValidateSet('assigned', 'created', 'mentioned', 'subscribed')]
-    $Filter = 'assigned',
-
-    [Parameter(Mandatory = $false, ParameterSetName='repo')]
-    [ValidatePattern('^\*$|^none$|^\d+$')]
-    $Milestone,
-
-    [Parameter(Mandatory = $false, ParameterSetName='repo')]
-    [ValidatePattern('^\*$|^none$|^.+$')]
-    $Assignee,
-
-    [Parameter(Mandatory = $false, ParameterSetName='repo')]
-    [string]
-    $Creator,
-
-    [Parameter(Mandatory = $false, ParameterSetName='repo')]
-    [string]
-    $Mentioned,
-
-    [Parameter(Mandatory = $false)]
-    [string[]]
-    $Labels = @(),
-
-    [Parameter(Mandatory = $false)]
-    [ValidateSet('created', 'updated', 'comments')]
-    $Sort = 'created',
-
-    [Parameter(Mandatory = $false)]
-    [ValidateSet('asc', 'desc')]
-    $Direction = 'desc',
-
-    [Parameter(Mandatory = $false)]
-    [DateTime]
-    #Optional string of a timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
-    $Since
-  )
+    static void Main( string[] args )
+    {
+        Foo foo = new Foo();
+        Console.WriteLine( GetDescription( () =&gt; foo.property1 ) );
+        Console.WriteLine( GetDescription( () =&gt; foo.property2 ) );
+    }
+}
 </code></pre>
 
-<h2 id="use-invoke-restmethod-to-get-githuboauth-token">Use Invoke-RestMethod to get GitHubOAuth Token</h2>
-<p>it's using basic auth, use <code>GetBytes</code> to convert string to bytes
-then use <code>ToBase64String</code> to convert them to base64 string</p>
-<pre><code class="Powershell">function Get-GitHubOAuthTokens
+<h2 id="use-memberexpression-and-compile-to-get-the-value">Use MemberExpression and Compile to get the value</h2>
+<pre><code class="csharp">public static string Meth&lt;T&gt;(Expression&lt;Func&lt;T&gt;&gt; expression)
 {
-  [CmdletBinding()]
-  param(
-    [Parameter(Mandatory = $true)]
-    [string]
-    $UserName,
+    var name = ((MemberExpression)expression.Body).Member.Name;
+    var value = expression.Compile()();
+    return string.Format(&quot;{0} - {1}&quot;, name, value);
+}
 
-    [Parameter(Mandatory = $true)]
-    [string]
-    $Password
-  )
 
-  try
-  {
-    $params = @{
-      Uri = 'https://api.github.com/authorizations';
-      Headers = @{
-        Authorization = 'Basic ' + [Convert]::ToBase64String(
-          [Text.Encoding]::ASCII.GetBytes(&quot;$($userName):$($password)&quot;));
-      }
+Meth(() =&gt; YourObject.Property);
+</code></pre>
+
+<h2 id="use-getvalue-and-setvalue-on-propertyinfo">Use getValue and setValue on PropertyInfo</h2>
+<pre><code class="csharp">void GetString&lt;T&gt;(string input, T target, Expression&lt;Func&lt;T, string&gt;&gt; outExpr)
+{
+    if (!string.IsNullOrEmpty(input))
+    {
+        var expr = (MemberExpression) outExpr.Body;
+        var prop = (PropertyInfo) expr.Member;
+        prop.SetValue(target, input, null);
     }
-    $global:GITHUB_API_OUTPUT = Invoke-RestMethod @params
-    #Write-Verbose $global:GITHUB_API_OUTPUT
+}
 
-    $global:GITHUB_API_OUTPUT |
-      % {
-        $date = [DateTime]::Parse($_.created_at).ToString('g')
-        Write-Host &quot;`n$($_.app.name) - Created $date&quot;
-        Write-Host &quot;`t$($_.token)`n`t$($_.app.url)&quot;
-      }
-  }
-  catch
-  {
-    Write-Error &quot;An unexpected error occurred (bad user/password?) $($Error[0])&quot;
-  }
+void Main()
+{
+    var person = new Person();
+    GetString(&quot;test&quot;, person, x =&gt; x.Name);
+    Debug.Assert(person.Name == &quot;test&quot;);
 }
 </code></pre>
               
@@ -302,10 +252,10 @@ then use <code>ToBase64String</code> to convert them to base64 string</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../../DockerSwarm/" class="btn btn-neutral float-right" title="DockerSwarm">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../../AWS/CloudFormation/" class="btn btn-neutral float-right" title="CloudFormation">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
-        <a href="../Module/" class="btn btn-neutral" title="PS Modules Note"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../" class="btn btn-neutral" title="Quick Note"><span class="icon icon-circle-arrow-left"></span> Previous</a>
       
     </div>
   
@@ -331,10 +281,10 @@ then use <code>ToBase64String</code> to convert them to base64 string</p>
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../Module/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+        <span><a href="../" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../../DockerSwarm/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../../AWS/CloudFormation/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
