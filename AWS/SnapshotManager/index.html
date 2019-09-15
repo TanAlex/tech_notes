@@ -157,28 +157,29 @@
                 <h1 id="snapshot-manager-note">Snapshot Manager Note</h1>
 <h2 id="overview-of-the-problem-we-want-to-solve">Overview of the problem we want to solve</h2>
 <p>In dailly AWS operations, we need to make snapshot and copy them to another region for backup purpose.<br />
-This is not a new problem and there are many existing solutions.<br />
-But there is an interesting sub-problem that seems not being taken care of before.  </p>
-<p>That sub-problem is how can we keep the snapshots efficiently.<br />
+This is not a new problem and there are many existing solutions.  </p>
+<p>The interesting part is how can we keep the snapshots efficiently.<br />
 For example, if those snapshots were made every 30 minutes, you will have 48 snapshots in a day and 480 snapshots in 10 days.  </p>
 <p>In previous solutions, they just simply setup a policy to remove those old snapshots by a fixed number or date.<br />
 The problem is if you set to keep 30 snapshots, it will only keep less than a days backup and if you set to keep 10 days, you end up wasting a lot of storage to keep these 480 snapshots.  </p>
 <p>A much better solution is to have an "Elastic" rule to remove those snapshots based on their create time.<br />
-For example, we can set the rule like this:
-* If this snapshot was made in recent 5 hours, then we keep it 
-* If it's between 5h to 12h, we keep only 1 per hour
-* If it's from 12h to 24h, we only keep one every 4 hours
-* If it's after 2days, we only keep 1 per day
-* If it's over 14 days, we don't keep</p>
+For example, we can set the rule like this:</p>
+<ul>
+<li>If this snapshot was made in recent 5 hours, then we keep it </li>
+<li>If it's between 5h to 12h, we keep only 1 per hour</li>
+<li>If it's from 12h to 24h, we only keep one every 4 hours</li>
+<li>If it's after 2days, we only keep 1 per day</li>
+<li>If it's over 14 days, we don't keep</li>
+</ul>
 <p>This solution is like the RRDTools db algorithm, we keep the data based on their freshness. Older data will be treated differently than newer data.<br />
 This algorithm is what we want to implement here.</p>
 <h2 id="simplify-the-problem-first">Simplify the problem first</h2>
 <p>Lets try to solve a simplified version first then we can use the knowledge to implement a much complete solution.  </p>
-<p>First, we set the data we want to process is just a simple array(LIST) with integer from 1 to 50</p>
+<p>First, we set the data we want to process to a simple array(LIST) with integer from 1 to 50</p>
 <pre><code>Data = [i+1  for i in range(50)]
 </code></pre>
 
-<p>Then we define our rule like this</p>
+<p>Then we define our rule to be like this</p>
 <pre><code>Rule = {
     &quot;5&quot;: 3,
     &quot;10&quot;: 6,
@@ -187,11 +188,13 @@ This algorithm is what we want to implement here.</p>
 }
 </code></pre>
 
-<p>This rule means:
-- If data &gt;= 5, keep one every 3 
-- If data &gt;=10, keep one every 6
-- If data &gt;=25, keep one every 10
-- If data &gt;=40, don't keep</p>
+<p>This rule means:</p>
+<ul>
+<li>If data &gt;= 5, keep one every 3 </li>
+<li>If data &gt;=10, keep one every 6</li>
+<li>If data &gt;=25, keep one every 10</li>
+<li>If data &gt;=40, don't keep</li>
+</ul>
 <p>Then we sort the Rule's keys </p>
 <pre><code>ruleKeys = sorted([ int(v) for v in rule.keys() ])
 </code></pre>
@@ -285,12 +288,12 @@ int((utc_now - s['StartTime']).total_seconds())
 <p>Here comes a handy utility function to convert these "time string" to regular timedelta</p>
 <pre><code>regex = re.compile(r'((?P&lt;days&gt;\d+?)d)?((?P&lt;hours&gt;\d+?)h)?((?P&lt;minutes&gt;\d+?)m)?((?P&lt;seconds&gt;\d+?)s)?')
 
-def timestr_to_timedelta(time_str):
+def timestr_to_seconds(time_str):
     # check if time_str is a numeric value like 1200 or -1
     time_str = str(time_str)
     if re.match(r&quot;^\d+$&quot;, time_str):
         # if it's just an integer, assume it's seconds
-        time_str += &quot;s&quot;
+        return int(time_str)
     # otherwise try to parse the value using RegEx
     parts = regex.search(time_str)
     if not parts:
@@ -300,7 +303,7 @@ def timestr_to_timedelta(time_str):
     for (name, param) in parts.items():
         if param:
             time_params[name] = int(param)
-    return timedelta(**time_params)
+    return timedelta(**time_params).total_seconds()
 </code></pre>
 
 <p>Finally, we can combine all these to a more complete solution like:</p>
@@ -315,7 +318,11 @@ def timestr_to_timedelta(time_str):
     snapshots = client.describe_snapshots(OwnerIds=[myAccount])['Snapshots']
     print(snapshots)
 
+    # utc_origin = datetime.utcfromtimestamp(0) # this gives 1970.1.1
+    # utc_now = datetime.utcnow()
     utc_now = datetime.now(timezone.utc)
+    # now_seconds = (utc_now - utc_origin).total_seconds()
+    # print(utc_origin, utc_now, now_seconds)
 
     snapshots_seconds = [ 
         {
@@ -331,8 +338,8 @@ def timestr_to_timedelta(time_str):
     # process snapshots based on rules
     newRule = {}
     for k,v in rule.items():
-        rule_key = int(utils.timestr_to_timedelta(k).total_seconds())
-        rule_val = int(utils.timestr_to_timedelta(v).total_seconds())
+        rule_key = int(utils.timestr_to_seconds(k))
+        rule_val = int(utils.timestr_to_seconds(v))
         newRule[str(rule_key)] = rule_val
 
     ruleKeys = sorted([ int(v) for v in newRule.keys() ])
@@ -368,7 +375,7 @@ def timestr_to_timedelta(time_str):
         if ifRemove:
             print(&quot;{} sec:{} SnapshotId:{} {:10s}&quot;.format(i, d, snapshots[i]['SnapshotId'], &quot;REMOVE&quot;)) 
         else:
-            print(&quot;{} sec:{} SnapshotId:{} {:10s}&quot;.format(i, d, snapshots[i]['SnapshotId'], &quot;OK&quot;)) 
+            print(&quot;{} sec:{} SnapshotId:{} {:10s}&quot;.format(i, d, snapshots[i]['SnapshotId'], &quot;OK&quot;))
 </code></pre>
               
             </div>
