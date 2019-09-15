@@ -5,10 +5,10 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+  <meta name="description" content="None">
   
   <link rel="shortcut icon" href="../img/favicon.ico">
-  <title>Quick Note - Tech Notes</title>
+  <title>C# Note - Tech Notes</title>
   <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
 
   <link rel="stylesheet" href="../css/theme.css" type="text/css" />
@@ -17,7 +17,7 @@
   
   <script>
     // Current page data
-    var mkdocs_page_name = "Quick Note";
+    var mkdocs_page_name = "C# Note";
     var mkdocs_page_input_path = "CSharp/README.md";
     var mkdocs_page_url = null;
   </script>
@@ -84,33 +84,7 @@
           
             <li class="toctree-l1">
 		
-    <span class="caption-text">CSharp</span>
-    <ul class="subnav">
-                <li class=" current">
-                    
-    <a class="current" href="./">Quick Note</a>
-    <ul class="subnav">
-            
-    <li class="toctree-l3"><a href="#c-note">C# Note</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l4" href="#flagged-enum">Flagged enum</a></li>
-        
-            <li><a class="toctree-l4" href="#cast-vs-as">Cast vs As</a></li>
-        
-            <li><a class="toctree-l4" href="#model-validation-by-modelstateisvalid">Model validation by ModelState.IsValid</a></li>
-        
-        </ul>
-    
-
-    </ul>
-                </li>
-                <li class="">
-                    
-    <a class="" href="MemberExpression/">MemberExpression</a>
-                </li>
-    </ul>
+    <a class="" href="../Sites/">Sites</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -123,22 +97,9 @@
                 </li>
                 <li class="">
                     
-    <a class="" href="../AWS/CloudFormation-cf-function.md">CloudFormation-cf-function</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../AWS/VPN/">VPN</a>
-                </li>
-                <li class="">
-                    
-    <a class="" href="../AWS/AWS.Notes/">Note</a>
+    <a class="" href="../AWS/SnapshotManager/">Snapshot manager</a>
                 </li>
     </ul>
-	    </li>
-          
-            <li class="toctree-l1">
-		
-    <a class="" href="../Sites/">Sites</a>
 	    </li>
           
         </ul>
@@ -162,12 +123,8 @@
     <li><a href="..">Docs</a> &raquo;</li>
     
       
-        
-          <li>CSharp &raquo;</li>
-        
-      
     
-    <li>Quick Note</li>
+    <li>C# Note</li>
     <li class="wy-breadcrumbs-aside">
       
     </li>
@@ -208,30 +165,10 @@ snippet.Tag = Tag.Tip | Tag.Example
 </tr>
 </tbody>
 </table>
-<h2 id="model-validation-by-modelstateisvalid">Model validation by ModelState.IsValid</h2>
-<ol>
-<li>Add annotation like [Required] etc to model</li>
-<li>Add this in the controller to check if [FromBody] parsing is successful or not</li>
-</ol>
-<pre><code class="csharp">public async Task&lt;IActionResult&gt; CreateVehicle([FromBody] vehicle){
-  if (!ModelState.IsValid)
-      return BadRequest(ModelState);
-  ...
-}
-</code></pre>
               
             </div>
           </div>
           <footer>
-  
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="MemberExpression/" class="btn btn-neutral float-right" title="MemberExpression">Next <span class="icon icon-circle-arrow-right"></span></a>
-      
-      
-        <a href="../Kubernetes/KubernetesNotes/" class="btn btn-neutral" title="Kubernetes"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-      
-    </div>
   
 
   <hr/>
@@ -255,10 +192,6 @@ snippet.Tag = Tag.Tip | Tag.Example
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
-        <span><a href="../Kubernetes/KubernetesNotes/" style="color: #fcfcfc;">&laquo; Previous</a></span>
-      
-      
-        <span style="margin-left: 15px"><a href="MemberExpression/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
@@ -268,3 +201,8 @@ snippet.Tag = Tag.Tip | Tag.Example
 
 </body>
 </html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2019-09-15 17:48:17
+-->
