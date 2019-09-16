@@ -10,6 +10,8 @@
 <!-- /TOC -->
 ## Run mkdocs to generate sites htmls
 ```
+pip install mkdocs
+
 mkdocs build
 mkdocs serve
 

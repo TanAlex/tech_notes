@@ -9,5 +9,7 @@ nav:
     - DockerSwarm: DockerSwarm/README.md
     - Kubernetes: Kubernetes/KubernetesNotes.md
     - Sites: Sites/README.md
-    - AWS: AWS/CloudFormation.md
+    - AWS: 
+      - "CloudFormation": AWS/CloudFormation.md
+      - "Snapshot manager": AWS/SnapshotManager.md
 theme: readthedocs
